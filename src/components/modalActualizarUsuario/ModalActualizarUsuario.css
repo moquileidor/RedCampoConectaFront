@@ -1,0 +1,183 @@
+/* Estilos generales del modal de actualización */
+.actualizar-usuario-modal {
+    z-index: 9999 !important;
+    position: fixed !important;
+}
+
+/* Asegurar que el backdrop tenga un z-index correcto pero menor que el modal */
+.modal-backdrop {
+    z-index: 9998 !important;
+    opacity: 0.7 !important; /* Hacerlo más oscuro para que el modal destaque más */
+}
+
+/* Ajustar la posición del diálogo del modal */
+.modal.show .modal-dialog {
+    transform: none;
+    top: 20% !important; /* Aumentado para mostrar el modal más abajo */
+    position: relative;
+    z-index: 10000 !important; /* Z-index más alto para asegurar que esté por encima de todo */
+    margin: 0 auto;
+    max-width: 90%; /* Ancho máximo en dispositivos pequeños */
+    width: 550px; /* Ancho fijo en dispositivos grandes */
+}
+
+/* Asegurar que el modal contenedor también tenga z-index alto */
+.modal {
+    z-index: 10000 !important;
+}
+
+/* Contenido del modal */
+.actualizar-usuario-modal .modal-content {
+    background-color: #F2E3C9;
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+    border: none;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+    position: relative;
+    z-index: 10001 !important; /* Asegurar que el contenido esté por encima */
+}
+
+/* Encabezado del modal */
+.actualizar-usuario-modal .modal-header {
+    border-bottom: none;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.actualizar-usuario-modal .modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2C3E50;
+}
+
+/* Botón de cerrar el modal */
+.actualizar-usuario-modal .btn-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    z-index: 10002; /* Asegurar que el botón de cerrar esté encima de todo */
+}
+
+/* Input groups con iconos */
+.actualizar-usuario-modal .input-group {
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: 100%;
+    background-color: white;
+    border-radius: 25px;
+    padding: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    border: none;
+    min-height: 50px;
+}
+
+.actualizar-usuario-modal .input-group:hover,
+.actualizar-usuario-modal .input-group:focus-within {
+    background-color: #e8dac7;
+    box-shadow: 0 0 8px rgba(108, 147, 114, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Estilos específicos para icono e input */
+.actualizar-usuario-modal .input-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    color: #6C9372;
+    font-size: 18px;
+    min-width: 46px;
+    z-index: 2;
+}
+
+/* Asegurar que los inputs ocupen el espacio disponible */
+.actualizar-usuario-modal .form-control,
+.actualizar-usuario-modal .form-select {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+    border: none !important;
+    outline: none !important;
+    padding: 10px 15px 10px 5px;
+    font-size: 16px;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto;
+    color: #333;
+    z-index: 1;
+}
+
+.actualizar-usuario-modal .form-control:focus,
+.actualizar-usuario-modal .form-select:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Fix específico para el input de nombre */
+.actualizar-usuario-modal input[name="nombreCompleto"],
+.actualizar-usuario-modal input[name="password"] {
+    color: #333 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+/* Etiquetas */
+.actualizar-usuario-modal .col-form-label {
+    font-weight: 600;
+    color: #507255;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Botón de envío */
+.actualizar-usuario-modal .btn-actualizar {
+    background-color: #6C9372;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.actualizar-usuario-modal .btn-actualizar:hover {
+    background-color: #507255;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.actualizar-usuario-modal .btn-actualizar:active {
+    transform: translateY(0);
+}
+
+/* Texto de ayuda */
+.actualizar-usuario-modal .text-muted {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* Alertas */
+.actualizar-usuario-modal .alert {
+    border-radius: 12px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+/* Especial para input tipo file */
+.actualizar-usuario-modal input[type="file"].form-control {
+    padding: 8px 12px;
+}

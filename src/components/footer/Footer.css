@@ -1,0 +1,63 @@
+.footer-section {
+    background: #A8D9C7; /* Color pastel armónico con el diseño */
+    color: #204B3A; /* Texto oscuro para contraste */
+    padding: 40px 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+.informacion-relevante {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.contenedor-izq-cc figure img {
+    width: 180px; /* Tamaño optimizado del logo */
+    max-width: 100%;
+    height: auto;
+}
+
+.contenedor-der-cc {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.copyrigth {
+    text-align: center;
+    border-top: 2px solid #204B3A;
+    padding-top: 15px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+ul.footer {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+ul.footer li strong {
+    font-size: 1.1rem;
+    color: #184C35;
+}
+
+@media (max-width: 768px) {
+    .informacion-relevante {
+        flex-direction: column;
+        align-items: center;
+    }
+    .contenedor-der-cc {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+}

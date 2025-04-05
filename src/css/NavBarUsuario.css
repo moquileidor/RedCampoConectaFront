@@ -1,0 +1,13 @@
+.contenedor-informacion-usuario-nav{
+    display: flex!important;
+    align-items: center;
+    gap:10px;
+}
+
+.nombre-usuario-campo-conecta{
+    margin: 0;
+    font-family: "Revalia", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+}

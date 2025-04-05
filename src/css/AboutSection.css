@@ -1,0 +1,38 @@
+section.section-about {
+    background-color: #FFF8F1; 
+    padding: 4rem 0;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .section-about h3,
+  .section-about .MuiTypography-h5 {
+    font-family: 'Playfair Display', serif;
+    color: #204B3A;
+  }
+  
+  .section-about .MuiTypography-subtitle1 {
+    font-size: 1.1rem;
+    color: #6BB190;
+    font-weight: 400;
+  }
+  
+  .section-about .MuiTypography-body1 {
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  
+  .section-about .MuiPaper-root {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .section-about .MuiPaper-root:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+  

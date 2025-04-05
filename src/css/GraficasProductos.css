@@ -1,0 +1,28 @@
+/* Estilos para la sección de la gráfica */
+.seccion-informacion-grafica {
+    background-color: #F2E3C9;
+    padding: 20px 0;
+}
+
+.contenedor-info-graf h2 {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: "Cinzel", serif;
+    margin-bottom: 20px;
+}
+
+.contenedor-info-graf {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0 10px; /* Añadimos algo de margen */
+}
+
+/* Hacemos que el contenedor de la gráfica sea responsivo */
+.grafica-container {
+    width: 100%; /* El gráfico ocupará el 100% del contenedor */
+    max-width: 1000px; /* Max-width para que no sea más grande que 1000px */
+    height: 400px; /* La altura será fija para la gráfica */
+}

@@ -1,0 +1,6 @@
+.opciones-usuario{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: space-evenly;
+}

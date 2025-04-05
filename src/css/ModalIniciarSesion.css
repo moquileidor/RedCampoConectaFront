@@ -1,0 +1,89 @@
+/* Estilos generales del modal */
+.modal-content {
+    background-color: #F2E3C9; /* Color pastel */
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.input-group:hover, .input-group:focus {
+    background-color: #e8dac7;
+    box-shadow: 0 0 8px rgba(108, 147, 114, 0.5);
+}
+
+/* Encabezado del modal */
+.modal-header {
+    border-bottom: none;
+    text-align: center;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2C3E50;
+}
+
+/* Botón de cierre */
+.btn-close {
+    background-color: transparent;
+    border: none;
+}
+
+/* Contenedor de los inputs con iconos */
+.input-group {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 25px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los inputs sin borde */
+.form-control {
+    border: none;
+    outline: none; /* Elimina el borde cuando el input está enfocado */
+    padding: 12px 15px;
+    font-size: 16px;
+    flex: 1;
+    background: transparent; /* Para que se fusione con el input-group */
+}
+
+/* Iconos dentro del input */
+.input-group .input-icon {
+    padding: 10px;
+    color: #2C3E50;
+}
+
+/* Botón de iniciar sesión */
+.btn-outline-success {
+    background-color: #6C9372;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.btn-outline-success:hover {
+    background-color: #507255;
+}
+
+/* Enlace para registrarse */
+.opcion-registrarse {
+    text-align: center;
+    font-size: 14px;
+    color: #2C3E50;
+}
+
+.opcion-de-registro {
+    font-weight: bold;
+    color: #507255;
+    cursor: pointer;
+}
+
+.opcion-de-registro:hover {
+    text-decoration: underline;
+}

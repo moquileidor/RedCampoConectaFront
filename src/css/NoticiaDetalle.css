@@ -1,0 +1,93 @@
+.noticia-detalle {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+    font-family: 'Poppins', sans-serif;
+    background-color: #F2E3C9;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.noticia-detalle h1 {
+    font-size: 2rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.noticia-detalle img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.noticia-detalle p {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+.noticia-detalle strong {
+    color: #222;
+}
+
+.noticia-detalle button {
+    display: inline-block;
+    padding: 10px 16px;
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.noticia-detalle .btn-volver {
+    background-color: #8B5E3B;
+    color: white;
+}
+
+.noticia-detalle .btn-volver:hover {
+    background-color: #704a2f;
+}
+
+.noticia-detalle .btn-like {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.noticia-detalle .btn-like:hover {
+    background-color: #388E3C;
+}
+
+.noticia-detalle textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.noticia-detalle .btn-comentar {
+    background-color: #1976D2;
+    color: white;
+}
+
+.noticia-detalle .btn-comentar:hover {
+    background-color: #1565C0;
+}
+
+.noticia-detalle ul {
+    list-style: none;
+    padding: 0;
+}
+
+.noticia-detalle li {
+    background-color: #fff;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}

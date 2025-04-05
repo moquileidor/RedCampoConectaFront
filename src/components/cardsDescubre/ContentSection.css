@@ -1,0 +1,63 @@
+section.section-card-descubre {
+  background-color: #f9f9f9;
+  padding: 4rem 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.section-card-descubre h3,
+.section-card-descubre .MuiTypography-h5 {
+  font-family: 'Playfair Display', serif;
+  color: #204B3A; /* Título elegante oscuro */
+}
+
+.section-card-descubre .MuiTypography-subtitle1 {
+  font-size: 1.2rem;
+  color: #6BB190; /* Verde pastel medio */
+  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+}
+
+.MuiPaper-root.MuiCard-root {
+  height: 100%;
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.MuiPaper-root.MuiCard-root:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.MuiAvatar-root {
+  background-color: #D3A266 !important; /* Ícono ocre suave */
+  color: #204B3A;
+}
+
+.MuiTypography-body1 {
+  font-size: 1rem;
+  color: #333333; /* Gris oscuro para buena lectura */
+  line-height: 1.6;
+  font-weight: 300;
+  font-family: 'Roboto', sans-serif;
+}
+
+#boton-cards-descubre {
+  color: #204B3A;
+  background-color: #A8D9C7;
+  border-radius: 100px;
+  padding: 14px 28px;
+  font-size: 1rem;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+#boton-cards-descubre:hover {
+  background-color: #204B3A;
+  color: #F2E3C9;
+}

@@ -1,0 +1,104 @@
+.contenedor-informacion-usuario-nav {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 5px !important;
+}
+.navbar-campo-conecta .dropdown-toggle::after {
+    display: none !important;
+}
+.nombre-usuario-campo-conecta{
+    color: #fff;
+    font-weight: bold;
+    margin-right: 0;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.imagen-usuario-cc {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.dropdown-menu {
+    min-width: 200px;
+}
+
+/* Quitar la flecha del dropdown - con mayor especificidad */
+.btn.dropdown-toggle::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+}
+
+.navbar-campo-conecta .dropdown-toggle::after {
+    display: none !important;
+}
+
+.nav-link {
+    color: #fff !important;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: #e0f0e0 !important;
+    text-decoration: underline;
+}
+
+.navbar-campo-conecta {
+    height: auto !important;
+    min-height: 100px;
+    padding: 10px 0;
+    background-color: #6BB190 !important;
+    width: 100%;
+}
+
+.container-fluid.contenedor-info-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.btn-link.nav-link {
+    color: #fff !important;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+}
+
+.btn-link.nav-link:hover {
+    color: #e0f0e0 !important;
+    text-decoration: underline;
+}
+
+/* Estilo para el botón de cerrar sesión */
+.btn-outline-danger {
+    color: #fff !important;
+    border-color: #fff !important;
+    background-color: transparent !important;
+    padding: 5px 10px;
+}
+
+.btn-outline-danger:hover {
+    color: #ff3e3e !important;
+    background-color: #fff !important;
+}
+
+/* Para ajustar en móviles */
+@media (max-width: 992px) {
+    .d-flex.align-items-center {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .me-4 {
+        margin: 5px !important;
+    }
+}

@@ -1,0 +1,101 @@
+/* Estilos específicos del modal de registro */
+.modal-content {
+    background-color: #F2E3C9; /* Color pastel */
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Encabezado del modal */
+.modal-header {
+    border-bottom: none;
+    text-align: center;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2C3E50;
+}
+
+/* Botón de cierre */
+.btn-close {
+    background-color: transparent;
+    border: none;
+}
+
+/* Contenedor de los inputs con iconos */
+.input-group {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 25px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    margin-bottom: 20px; /* Más espacio entre inputs */
+}
+
+/* Estilos para los inputs sin borde */
+.form-control {
+    border: none;
+    outline: none; /* Elimina el borde cuando el input está enfocado */
+    padding: 14px 18px;
+    font-size: 16px;
+    flex: 1;
+    background-color: #ffffff;
+    color: #2C3E50;
+    border-radius: 25px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover y focus para los inputs */
+.input-group:hover, 
+.input-group:focus {
+    background-color: #e8dac7;
+    box-shadow: 0 0 8px rgba(108, 147, 114, 0.5);
+}
+
+/* Iconos dentro del input */
+.input-group .input-icon {
+    padding: 10px;
+    color: #2C3E50;
+}
+
+/* Botón de registro */
+.btn-primary {
+    background-color: #6C9372;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.btn-primary:hover {
+    background-color: #507255;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Labels */
+.col-form-label {
+    font-weight: bold;
+    color: #2C3E50;
+    margin-bottom: 5px;
+}
+
+/* Select y File Input */
+select.form-control, 
+input[type="file"] {
+    border-radius: 25px;
+    padding: 12px;
+}
+
+/* Espaciado entre secciones */
+h5 {
+    margin-top: 25px;
+    font-size: 18px;
+    color: #2C3E50;
+}

@@ -1,0 +1,156 @@
+/* Estilos generales del modal */
+.modal-content {
+    background-color: #F2E3C9; /* Fondo pastel */
+    border-radius: 16px;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Encabezado del modal */
+.modal-header.modal-header-info-usuario {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none;
+    padding: 20px;
+    background-color: #E6CBA8;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+.info-personal {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Imagen de usuario */
+.imagen-usuario-cc {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #6C9372;
+    transition: transform 0.3s ease-in-out;
+}
+
+.imagen-usuario-cc:hover {
+    transform: scale(1.1);
+}
+
+/* Título del modal */
+.modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2C3E50;
+}
+
+/* Botón de cierre */
+.btn-close {
+    background-color: transparent;
+    border: none;
+    font-size: 18px;
+}
+
+/* Cuerpo del modal */
+.modal-body.body-modal-info-usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px;
+    font-size: 16px;
+    color: #2C3E50;
+}
+
+/* Texto dentro del modal */
+.modal-body.body-modal-info-usuario p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+strong {
+    color: #507255;
+}
+
+/* Botón de cerrar sesión */
+.btn-cerrar-sesion-usuario {
+    border: 2px solid #E95757;
+    background: transparent;
+    color: #E95757;
+    border-radius: 25px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-cerrar-sesion-usuario:hover {
+    background: #E95757;
+    color: white;
+    box-shadow: 0 4px 8px rgba(233, 81, 81, 0.3);
+}
+
+/* Contenedor del botón */
+.contenedor-btn-cerrar-sesion {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+/* Enlaces de acción */
+.opcion-de-registro {
+    color: #507255;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-decoration: underline;
+}
+
+.opcion-de-registro:hover {
+    color: #2C3E50;
+    text-decoration: none;
+}
+
+/* Sección de registro y actualización */
+.informacion-negocio, .informacion-usuario {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: #F8ECE0;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.informacion-negocio:hover, .informacion-usuario:hover {
+    background: #E6CBA8;
+}
+
+/* Mejoras en los inputs */
+input.form-control {
+    border: 2px solid #6C9372;
+    border-radius: 20px;
+    padding: 12px;
+    font-size: 16px;
+    color: #2C3E50;
+    transition: all 0.3s ease;
+    background: #FAF3E0;
+}
+
+input.form-control:hover, 
+input.form-control:focus {
+    border-color: #507255;
+    background-color: #F2E3C9;
+    box-shadow: 0 0 8px rgba(108, 147, 114, 0.4);
+}
+
+/* Espaciado entre secciones */
+h5 {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #2C3E50;
+}

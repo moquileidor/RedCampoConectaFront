@@ -1,0 +1,133 @@
+/* Estilos generales del modal */
+.iniciarSesion {
+    z-index: 9999 !important; /* Valor muy alto para asegurar que está por encima de todo */
+}
+
+.modal-backdrop {
+    z-index: 9998 !important; /* Asegurar que el backdrop también tiene z-index alto */
+}
+
+.modal-content {
+    background-color: #F2E3C9; /* Color pastel */
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+    border: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Encabezado del modal */
+.modal-header {
+    border-bottom: none;
+    text-align: center;
+    padding-bottom: 0;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2C3E50;
+}
+
+/* Botón de cierre */
+.btn-close {
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+}
+
+/* Contenedor de los inputs con iconos */
+.input-group {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 25px;
+    padding: 5px 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    border: none;
+}
+
+.input-group:hover, .input-group:focus-within {
+    background-color: #e8dac7;
+    box-shadow: 0 0 8px rgba(108, 147, 114, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Estilos para los inputs sin borde */
+.form-control {
+    border: none !important;
+    outline: none !important; /* Elimina el borde cuando el input está enfocado */
+    padding: 12px 15px;
+    font-size: 16px;
+    flex: 1;
+    background: transparent !important; /* Para que se fusione con el input-group */
+    box-shadow: none !important;
+}
+
+.form-control:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Iconos dentro del input */
+.input-group .input-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    color: #6C9372;
+    font-size: 18px;
+    margin-right: 5px;
+}
+
+/* Botón de iniciar sesión */
+.btn-outline-success {
+    background-color: #6C9372;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-success:hover {
+    background-color: #507255;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-outline-success:active {
+    transform: translateY(0);
+}
+
+/* Enlace para registrarse */
+.opcion-registrarse {
+    text-align: center;
+    font-size: 14px;
+    color: #2C3E50;
+    margin: 15px 0;
+}
+
+.opcion-de-registro {
+    font-weight: bold;
+    color: #507255;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.opcion-de-registro:hover {
+    text-decoration: underline;
+    color: #6C9372;
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+    top: 15%!important;
+}

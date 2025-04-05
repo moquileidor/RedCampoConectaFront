@@ -1,0 +1,49 @@
+.registro-emprendimiento-container {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.registro-emprendimiento-container .MuiPaper-root {
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.registro-emprendimiento-container .MuiTypography-h4 {
+  color: #2e7d32;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.registro-emprendimiento-container .MuiButton-contained {
+  background-color: #2e7d32;
+  text-transform: none;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(46, 125, 50, 0.2);
+  transition: all 0.3s ease;
+}
+
+.registro-emprendimiento-container .MuiButton-contained:hover {
+  background-color: #1b5e20;
+  box-shadow: 0 6px 12px rgba(46, 125, 50, 0.3);
+  transform: translateY(-2px);
+}
+
+.registro-emprendimiento-container input[type="file"] {
+  padding: 10px;
+  border: 1px dashed #2e7d32;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+}
+
+.registro-emprendimiento-container input[type="file"]:hover {
+  background-color: #f0f7f0;
+}
+
+.registro-emprendimiento-container .MuiFormControl-root {
+  margin-bottom: 16px;
+}
+
+.registro-emprendimiento-container .MuiFormControlLabel-root {
+  margin-top: 8px;
+} 

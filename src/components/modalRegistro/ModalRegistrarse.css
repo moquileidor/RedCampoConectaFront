@@ -1,0 +1,199 @@
+/* Estilos para el modal registro */
+.registro-modal {
+    z-index: 9999 !important;
+    position: fixed !important;
+    overflow: hidden !important;
+    padding-right: 0 !important; /* Elimina el padding que puede causar la barra */
+}
+
+/* Prevenir scroll en el body cuando modal está abierto */
+body.modal-open {
+    overflow: hidden !important;
+    padding-right: 0 !important;
+}
+
+/* Backdrop del modal */
+.modal-backdrop {
+    z-index: 9998 !important;
+    opacity: 0.7 !important;
+}
+
+/* Diálogo del modal */
+.modal.show .modal-dialog {
+    transform: none;
+    top: 20% !important; /* Posiciona el modal más abajo */
+    position: relative;
+    z-index: 10000 !important;
+    margin: 0 auto;
+    max-width: 90%;
+    width: 550px;
+    padding-right: 0 !important;
+    overflow: visible !important;
+}
+
+/* Contenedor modal */
+.modal {
+    z-index: 10000 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding-right: 0 !important;
+}
+
+/* Contenido del modal */
+.modal-content {
+    background-color: #F2E3C9; /* Color pastel */
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+    border: none;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 10001 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+}
+
+/* Modal body - contenedor de formulario */
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px; /* Espacio para la barra de scroll interna */
+}
+
+/* Modal body - personalización de scrollbar para navegadores webkit */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #6C9372;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #507255;
+}
+
+/* Encabezado del modal */
+.modal-header {
+    border-bottom: none;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2C3E50;
+}
+
+/* Botón de cierre */
+.btn-close {
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    z-index: 10002; /* Por encima de todo */
+}
+
+/* Contenedor de los inputs con iconos */
+.input-group {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 25px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    margin-bottom: 10px;
+    overflow: visible;
+    position: relative;
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Icono dentro del input */
+.input-group .input-icon {
+    padding: 10px;
+    color: #2C3E50;
+    min-width: 40px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilos para los inputs */
+.form-control {
+    border: none !important;
+    outline: none !important;
+    padding: 14px 10px !important;
+    font-size: 16px;
+    flex: 1;
+    background-color: transparent !important;
+    color: #2C3E50 !important;
+    border-radius: 25px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    width: auto !important;
+    display: block !important;
+}
+
+/* Hover y focus para los inputs */
+.input-group:hover, 
+.input-group:focus-within {
+    background-color: #e8dac7;
+    box-shadow: 0 0 8px rgba(108, 147, 114, 0.5);
+}
+
+/* Botón de registro */
+.btn-primary {
+    background-color: #6C9372;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.btn-primary:hover {
+    background-color: #507255;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Labels */
+.col-form-label {
+    font-weight: bold;
+    color: #2C3E50;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Select y File Input */
+select.form-control, 
+input[type="file"].form-control {
+    border-radius: 25px;
+    padding: 12px;
+    background-color: white !important;
+    width: 100%;
+}
+
+/* Espaciado entre secciones */
+h5 {
+    margin-top: 25px;
+    font-size: 18px;
+    color: #2C3E50;
+}

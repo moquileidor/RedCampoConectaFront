@@ -1,0 +1,112 @@
+/* Contenedor del navbar */
+.navbar-header {
+    width: 100%;
+    height: auto;
+}
+
+/* Estilos para la barra de navegación */
+nav.navbar.bg-body-tertiary.navbar-campo-conecta {
+    background: #A8D9C7 !important; 
+    top: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    padding: 10px 0;
+}
+
+
+/* Contenedor dentro del navbar */
+.contenedor-info-nav {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.align-text-top {
+    vertical-align: middle;
+}
+
+.navbar-cc-principal {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #000;
+}
+
+.nombre-campo-conecta {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: "Cinzel", serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    margin: 0 0 0 10px;
+    color: #204B3A;
+}
+
+.contenedor-btns-nav {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-iniciar-sesion,
+.btn-registrarme {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 14px;
+    border: none;
+    transition: all 0.3s ease;
+}
+.btn-iniciar-sesion {
+    background-color: #D5EFE5; 
+    color: #204B3A;
+}
+
+.btn-iniciar-sesion:hover {
+    background-color: #A8D9C7;
+    color: #204B3A;
+}
+
+
+.btn-registrarme {
+    background-color: #F6D8AA; 
+    color: #204B3A;
+}
+
+.btn-registrarme:hover {
+    background-color: #D3A266;
+    color: #fff;
+}
+
+/* Media query para dispositivos móviles */
+@media (max-width: 768px) {
+    .contenedor-btns-nav {
+        gap: 8px;
+    }
+    
+    .btn-iniciar-sesion,
+    .btn-registrarme {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .nombre-campo-conecta {
+        font-size: 22px;
+    }
+}
+
+
+
+
+
+
+
