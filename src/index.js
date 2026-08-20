@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals';
 // import 'bootstrap-icons/font/bootstrap-icons.css';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { cleanupBootstrapModals } from './utils/modalCleanup';
 
 // Importamos los archivos CSS principales desde la carpeta css
 import './css/Navbar.css';
@@ -41,9 +42,7 @@ const checkSession = () => {
   }
   
   // Limpiar cualquier estado de modal que pudiera persistir
-  document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-  document.body.classList.remove('modal-open');
-  document.body.style.overflow = '';
+  cleanupBootstrapModals();
   document.body.style.paddingRight = '';
 };
 
@@ -53,9 +52,7 @@ checkSession();
 // Función para limpiar cualquier backdrop de modal al iniciar la aplicación
 const cleanupModals = () => {
   setTimeout(() => {
-    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
+    cleanupBootstrapModals();
     document.body.style.paddingRight = '';
   }, 500);
 };

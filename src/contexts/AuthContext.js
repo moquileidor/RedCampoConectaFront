@@ -1,22 +1,17 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import authService from '../services/authService';
 
-// Crear el contexto de autenticación
 export const AuthContext = createContext();
 
-// Componente proveedor de autenticación
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Cargar usuario al iniciar
   useEffect(() => {
     const loadUser = () => {
       try {
-        const user = authService.getCurrentUser();
-        setCurrentUser(user);
-      } catch (error) {
-        console.error('Error al cargar usuario:', error);
+        setCurrentUser(authService.getCurrentUser());
+      } catch {
         setCurrentUser(null);
       } finally {
         setLoading(false);
@@ -24,58 +19,46 @@ export const AuthProvider = ({ children }) => {
     };
 
     loadUser();
-    
-    // Escuchar cambios en localStorage para actualizar el estado
-    const handleStorageChange = () => {
-      loadUser();
-    };
 
-    window.addEventListener('storage', handleStorageChange);
-    
+    // Sesión expirada por el interceptor de api.js
+    const handleExpired = () => setCurrentUser(null);
+    // Cambio de localStorage en otra pestaña
+    const handleStorage = () => loadUser();
+
+    window.addEventListener('auth:expired', handleExpired);
+    window.addEventListener('storage', handleStorage);
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth:expired', handleExpired);
+      window.removeEventListener('storage', handleStorage);
     };
   }, []);
 
-  // Función para iniciar sesión
-  const login = async (username, password) => {
-    try {
-      const userData = await authService.login(username, password);
-      setCurrentUser(userData);
-      return userData;
-    } catch (error) {
-      console.error('Error en login desde contexto:', error);
-      throw error;
-    }
-  };
+  const login = useCallback(async (username, password) => {
+    const userData = await authService.login(username, password);
+    setCurrentUser(userData);
+    return userData;
+  }, []);
 
-  // Función para registrarse
-  const register = async (username, password) => {
-    try {
-      const userData = await authService.register(username, password);
-      setCurrentUser(userData);
-      return userData;
-    } catch (error) {
-      console.error('Error en registro desde contexto:', error);
-      throw error;
-    }
-  };
+  const register = useCallback(async (username, password) => {
+    const userData = await authService.register(username, password);
+    setCurrentUser(userData);
+    return userData;
+  }, []);
 
-  // Función para cerrar sesión
-  const logout = () => {
+  const logout = useCallback(() => {
     authService.logout();
     setCurrentUser(null);
-  };
+  }, []);
 
-  // Valor del contexto que estará disponible para los componentes
-  const value = {
+  const value = useMemo(() => ({
     currentUser,
     loading,
     login,
     register,
     logout,
     isAuthenticated: !!currentUser,
-  };
+  }), [currentUser, loading, login, register, logout]);
 
   return (
     <AuthContext.Provider value={value}>
@@ -84,11 +67,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook personalizado para usar el contexto de autenticación
 export const useAuth = () => {
   const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
-}; 
+};
