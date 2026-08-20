@@ -88,23 +88,25 @@ const PerfilUsuarioPage = () => {
         localStorage.setItem('datosPersonales', JSON.stringify(datosProcesados));
         return;
       }
+
+      throw new Error('Sin datos personales');
     } catch {
-      // no hay datos aún — crear placeholders para permitir edición
+      const datosPredeterminados = {
+        iddatospersonales: null,
+        nombre_completo: currentUser?.nombre || '',
+        cedula: '',
+        direccion: '',
+        telefono: '',
+        email: currentUser?.emailUser || currentUser?.email || '',
+        idusuarios: userId,
+      };
+
+      setDatosPersonales(datosPredeterminados);
+      setUsuarioSeleccionado(datosPredeterminados);
+      setError('No se encontraron datos personales completos. Por favor, actualiza tu información.');
+    } finally {
+      setLoading(false);
     }
-
-    const datosPredeterminados = {
-      iddatospersonales: null,
-      nombre_completo: currentUser?.nombre || '',
-      cedula: '',
-      direccion: '',
-      telefono: '',
-      email: currentUser?.emailUser || currentUser?.email || '',
-      idusuarios: userId,
-    };
-
-    setDatosPersonales(datosPredeterminados);
-    setUsuarioSeleccionado(datosPredeterminados);
-    setError('No se encontraron datos personales completos. Por favor, actualiza tu información.');
   }, [userId, currentUser]);
 
   useEffect(() => {
