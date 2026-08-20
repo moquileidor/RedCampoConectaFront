@@ -1,73 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Paper, TextField, Button, FormControl, InputLabel, Select, MenuItem, Alert, CircularProgress, Grid } from '@mui/material';
-import axios from 'axios';
-import authService from '../services/authService';
+import {
+  Box, Typography, Paper, TextField, Button, FormControl,
+  InputLabel, Select, MenuItem, Alert, CircularProgress, Grid,
+} from '@mui/material';
+import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import NavBarUsuario from '../components/navBarUsuario/NavBarUsuario';
 import Footer from '../components/footer/Footer';
 
+const FUENTES_ENERGIA = ['Solar', 'Eólica', 'Hidroeléctrica', 'Biomasa', 'Geotérmica', 'Otra'];
+
 export default function RegistroProduccionConsumo() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
   const [emprendimientos, setEmprendimientos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [formData, setFormData] = useState({
+  const [loading, setLoading]                 = useState(false);
+  const [error, setError]                     = useState(null);
+  const [success, setSuccess]                 = useState(false);
+  const [formData, setFormData]               = useState({
     emprendimientoId: '',
-    fecha: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD para input type="date"
+    fecha: new Date().toISOString().split('T')[0],
     energiaProducida: '',
     energiaConsumida: '',
     fuenteEnergia: '',
-    observaciones: ''
+    observaciones: '',
   });
 
+  const userId = currentUser?.idUsuario || currentUser?.idusuarios || currentUser?.id;
+
   useEffect(() => {
-    const cargarEmprendimientos = async () => {
-      try {
-        const user = authService.getCurrentUser();
-        if (!user) {
-          setError('No se ha iniciado sesión');
-          return;
-        }
+    if (!userId) {
+      setError('No se ha iniciado sesión.');
+      return;
+    }
 
-        // Añadir logs para depuración
-        console.log("Cargando emprendimientos para el usuario:", user);
-        console.log("ID del usuario:", user.idUsuario);
-
-        // Cargar los emprendimientos del usuario actual usando el endpoint correcto
-        const response = await axios.get(`http://localhost:8080/emprendimientos/usuario/${user.idUsuario}`, {
-          headers: {
-            'Authorization': `Bearer ${authService.getToken()}`
-          }
-        });
-        
-        console.log("Emprendimientos obtenidos:", response.data);
-        setEmprendimientos(response.data);
-        
-        // Si hay emprendimientos, seleccionar el primero por defecto
-        if (response.data.length > 0) {
-          setFormData(prev => ({
-            ...prev,
-            emprendimientoId: response.data[0].idemprendimiento
-          }));
+    api.get(`/emprendimientos/usuario/${userId}`)
+      .then(({ data }) => {
+        setEmprendimientos(data);
+        if (data.length > 0) {
+          setFormData((prev) => ({ ...prev, emprendimientoId: data[0].idemprendimiento }));
         } else {
-          setError('No tiene emprendimientos registrados. Debe registrar un emprendimiento antes de poder registrar datos de energía.');
+          setError('No tiene emprendimientos registrados. Debe registrar uno antes de poder registrar datos de energía.');
         }
-      } catch (error) {
-        console.error('Error al cargar emprendimientos:', error);
-        setError('No se pudieron cargar los emprendimientos. Verifique su conexión o inténtelo más tarde.');
-      }
-    };
-
-    cargarEmprendimientos();
-  }, []);
+      })
+      .catch(() =>
+        setError('No se pudieron cargar los emprendimientos. Verifique su conexión o inténtelo más tarde.')
+      );
+  }, [userId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -76,118 +61,72 @@ export default function RegistroProduccionConsumo() {
     setError(null);
     setSuccess(false);
 
+    if (!formData.emprendimientoId) {
+      setError('Debe seleccionar un emprendimiento.');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.energiaProducida || !formData.energiaConsumida) {
+      setError('Los valores de energía producida y consumida son obligatorios.');
+      setLoading(false);
+      return;
+    }
+
+    const emprendimientoSeleccionado = emprendimientos.find(
+      (emp) => emp.idemprendimiento === parseInt(formData.emprendimientoId)
+    );
+
+    if (!emprendimientoSeleccionado) {
+      setError('El emprendimiento seleccionado no es válido o ya no existe.');
+      setLoading(false);
+      return;
+    }
+
+    if (emprendimientoSeleccionado.idusuarios !== userId) {
+      setError('Solo el dueño del emprendimiento puede registrar datos de energía.');
+      setLoading(false);
+      return;
+    }
+
+    const dataToSend = {
+      idemprendimiento: parseInt(formData.emprendimientoId),
+      fecha: formData.fecha,
+      produccion_energia: parseFloat(formData.energiaProducida),
+      consumo_energia: parseFloat(formData.energiaConsumida),
+      fuente_energia: formData.fuenteEnergia || 'Solar',
+      observaciones: formData.observaciones || '',
+      usuario_registro: currentUser?.username || 'usuario',
+    };
+
     try {
-      // Validar datos
-      if (!formData.emprendimientoId) {
-        setError('Debe seleccionar un emprendimiento');
-        setLoading(false);
-        return;
-      }
+      await api.post('/produccionconsumoenergia', dataToSend);
 
-      if (!formData.energiaProducida || !formData.energiaConsumida) {
-        setError('Los valores de energía producida y consumida son obligatorios');
-        setLoading(false);
-        return;
-      }
-
-      // Verificar que el usuario actual es el dueño del emprendimiento seleccionado
-      const emprendimientoSeleccionado = emprendimientos.find(
-        emp => emp.idemprendimiento === parseInt(formData.emprendimientoId)
-      );
-      
-      if (!emprendimientoSeleccionado) {
-        setError('El emprendimiento seleccionado no es válido o ya no existe');
-        setLoading(false);
-        return;
-      }
-      
-      const usuarioActual = authService.getCurrentUser();
-      if (!usuarioActual || emprendimientoSeleccionado.idusuarios !== usuarioActual.idUsuario) {
-        setError('Solo el dueño del emprendimiento puede registrar datos de energía');
-        setLoading(false);
-        return;
-      }
-
-      console.log("Preparando datos para enviar:", formData);
-
-      // Preparar datos para enviar - adaptar al formato esperado por la API
-      const dataToSend = {
-        idemprendimiento: parseInt(formData.emprendimientoId),
-        fecha: formData.fecha,
-        produccion_energia: parseFloat(formData.energiaProducida),
-        consumo_energia: parseFloat(formData.energiaConsumida),
-        fuente_energia: formData.fuenteEnergia || "Solar",
-        observaciones: formData.observaciones || "",
-        usuario_registro: authService.getCurrentUser()?.username || "usuario"
-      };
-
-      console.log("Enviando datos al servidor:", dataToSend);
-
-      // Enviar datos al servidor - usar formato JSON explícito
-      const response = await axios.post('http://localhost:8080/produccionconsumoenergia', 
-        dataToSend,  // Ya no necesitamos JSON.stringify
-        {
-          headers: {
-            'Authorization': `Bearer ${authService.getToken()}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log("Respuesta del servidor:", response.data);
-
-      // Mostrar mensaje de éxito y limpiar formulario
       setSuccess(true);
-      setFormData({
-        emprendimientoId: formData.emprendimientoId, // Mantener el emprendimiento seleccionado
+      setFormData((prev) => ({
+        emprendimientoId: prev.emprendimientoId,
         fecha: new Date().toISOString().split('T')[0],
         energiaProducida: '',
         energiaConsumida: '',
         fuenteEnergia: '',
-        observaciones: ''
-      });
-    } catch (error) {
-      console.error('Error al registrar datos:', error);
-      
+        observaciones: '',
+      }));
+    } catch (err) {
       let mensajeError = 'No se pudieron guardar los datos. ';
-      
-      if (error.response) {
-        // El servidor respondió con un código de error
-        console.error("Respuesta de error del servidor:", error.response);
-        mensajeError += `Error del servidor: ${error.response.status}. `;
-        
-        if (error.response.data && error.response.data.message) {
-          mensajeError += error.response.data.message;
-        } else if (error.response.data && error.response.data.error) {
-          mensajeError += error.response.data.error;
-        }
-      } else if (error.request) {
-        // La petición fue hecha pero no se recibió respuesta
-        console.error("No se recibió respuesta:", error.request);
-        mensajeError += 'No se recibió respuesta del servidor. Verifique su conexión a internet.';
+      if (err.response?.data?.message) {
+        mensajeError += err.response.data.message;
+      } else if (err.response?.data?.error) {
+        mensajeError += err.response.data.error;
+      } else if (err.response) {
+        mensajeError += `Error del servidor: ${err.response.status}.`;
       } else {
-        // Error en la configuración de la petición
-        mensajeError += error.message || 'Error desconocido.';
+        mensajeError += 'No se recibió respuesta del servidor. Verifique su conexión.';
       }
-      
       setError(mensajeError);
     } finally {
       setLoading(false);
     }
   };
-
-  const handleVolverEstadisticas = () => {
-    navigate('/estadisticas-energia');
-  };
-
-  const opcionesFuenteEnergia = [
-    'Solar',
-    'Eólica',
-    'Hidroeléctrica',
-    'Biomasa',
-    'Geotérmica',
-    'Otra'
-  ];
 
   return (
     <>
@@ -198,17 +137,8 @@ export default function RegistroProduccionConsumo() {
             Registro de Producción y Consumo de Energía
           </Typography>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
-
-          {success && (
-            <Alert severity="success" sx={{ mb: 3 }}>
-              Datos registrados correctamente
-            </Alert>
-          )}
+          {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ mb: 3 }}>Datos registrados correctamente</Alert>}
 
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
@@ -229,9 +159,7 @@ export default function RegistroProduccionConsumo() {
                         </MenuItem>
                       ))
                     ) : (
-                      <MenuItem disabled value="">
-                        No hay emprendimientos disponibles
-                      </MenuItem>
+                      <MenuItem disabled value="">No hay emprendimientos disponibles</MenuItem>
                     )}
                   </Select>
                 </FormControl>
@@ -239,19 +167,10 @@ export default function RegistroProduccionConsumo() {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  fullWidth
-                  label="Fecha"
-                  name="fecha"
-                  type="date"
-                  value={formData.fecha}
-                  onChange={handleInputChange}
-                  required
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    max: new Date().toISOString().split('T')[0]
-                  }}
+                  fullWidth label="Fecha" name="fecha" type="date"
+                  value={formData.fecha} onChange={handleInputChange} required
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ max: new Date().toISOString().split('T')[0] }}
                 />
               </Grid>
 
@@ -259,75 +178,46 @@ export default function RegistroProduccionConsumo() {
                 <FormControl fullWidth>
                   <InputLabel>Fuente de Energía</InputLabel>
                   <Select
-                    name="fuenteEnergia"
-                    value={formData.fuenteEnergia}
-                    onChange={handleInputChange}
-                    label="Fuente de Energía"
+                    name="fuenteEnergia" value={formData.fuenteEnergia}
+                    onChange={handleInputChange} label="Fuente de Energía"
                   >
-                    {opcionesFuenteEnergia.map((opcion) => (
-                      <MenuItem key={opcion} value={opcion}>
-                        {opcion}
-                      </MenuItem>
-                    ))}
+                    {FUENTES_ENERGIA.map((f) => <MenuItem key={f} value={f}>{f}</MenuItem>)}
                   </Select>
                 </FormControl>
               </Grid>
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  fullWidth
-                  label="Energía Producida (kWh)"
-                  name="energiaProducida"
-                  type="number"
-                  value={formData.energiaProducida}
-                  onChange={handleInputChange}
-                  required
-                  inputProps={{ min: "0", step: "0.01" }}
+                  fullWidth label="Energía Producida (kWh)" name="energiaProducida" type="number"
+                  value={formData.energiaProducida} onChange={handleInputChange} required
+                  inputProps={{ min: '0', step: '0.01' }}
                 />
               </Grid>
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  fullWidth
-                  label="Energía Consumida (kWh)"
-                  name="energiaConsumida"
-                  type="number"
-                  value={formData.energiaConsumida}
-                  onChange={handleInputChange}
-                  required
-                  inputProps={{ min: "0", step: "0.01" }}
+                  fullWidth label="Energía Consumida (kWh)" name="energiaConsumida" type="number"
+                  value={formData.energiaConsumida} onChange={handleInputChange} required
+                  inputProps={{ min: '0', step: '0.01' }}
                 />
               </Grid>
 
               <Grid item xs={12}>
                 <TextField
-                  fullWidth
-                  label="Observaciones"
-                  name="observaciones"
-                  value={formData.observaciones}
-                  onChange={handleInputChange}
-                  multiline
-                  rows={4}
+                  fullWidth label="Observaciones" name="observaciones"
+                  value={formData.observaciones} onChange={handleInputChange}
+                  multiline rows={4}
                 />
               </Grid>
 
               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                <Button
-                  variant="outlined"
-                  onClick={handleVolverEstadisticas}
-                  sx={{ px: 3 }}
-                >
+                <Button variant="outlined" onClick={() => navigate('/estadisticas-energia')} sx={{ px: 3 }}>
                   Volver a Estadísticas
                 </Button>
                 <Button
-                  type="submit"
-                  variant="contained"
+                  type="submit" variant="contained"
                   disabled={loading || !formData.emprendimientoId}
-                  sx={{ 
-                    px: 4,
-                    bgcolor: '#6BB190',
-                    '&:hover': { bgcolor: '#5A9A7F' }
-                  }}
+                  sx={{ px: 4, bgcolor: '#6BB190', '&:hover': { bgcolor: '#5A9A7F' } }}
                 >
                   {loading ? <CircularProgress size={24} /> : 'Guardar Datos'}
                 </Button>
@@ -339,4 +229,4 @@ export default function RegistroProduccionConsumo() {
       <Footer />
     </>
   );
-} 
+}

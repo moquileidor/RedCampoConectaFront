@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import NavBarUsuario from '../components/navBarUsuario/NavBarUsuario';
-import axios from 'axios';
+import api from '../services/api';
 import { Link } from 'react-router-dom';
 
 // Registrar componentes necesarios de Chart.js
@@ -17,31 +17,9 @@ export default function GraficasDatos() {
     const cargarDatos = async () => {
       setLoading(true);
       try {
-        console.log("Intentando conectar a: http://localhost:8080/api/dashboard/emprendimientos-datos");
-        
-        const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
-        if (!token) {
-          console.error('No hay token de autenticación');
-          // Usar datos de prueba en caso de error
-          cargarDatosPrueba();
-          return;
-        }
-        
-        // Configurar el token en las cabeceras
-        const config = {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        };
-        
-        const response = await axios.get('http://localhost:8080/api/dashboard/emprendimientos-datos', config);
-        console.log("Datos recibidos:", response.data);
-        
-        // Procesar datos para los gráficos
-        procesarDatos(response.data);
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
-        // Usar datos de prueba en caso de error
+        const { data } = await api.get('/api/dashboard/emprendimientos-datos');
+        procesarDatos(data);
+      } catch {
         cargarDatosPrueba();
       } finally {
         setLoading(false);

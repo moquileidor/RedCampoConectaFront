@@ -1,275 +1,162 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import NavBarUsuario from '../components/navBarUsuario/NavBarUsuario';
 import FooterPage from '../components/footer/Footer';
 import logoUsuario from '../assets/usuarioLogo.png';
-import authService from '../services/authService';
-import axios from 'axios';
-import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import ActualizarMiInformacion from '../components/modalActualizarUsuario/ModalActualizarUsuario';
 import CompletarPerfil from '../components/modalCompletarPerfil/CompletarPerfil';
 
+// Estilos constantes — fuera del componente para no recrear en cada render
+const cardStyle = {
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  borderRadius: '12px',
+  marginBottom: '20px',
+  border: 'none',
+};
+
+const containerStyle = {
+  paddingTop: '40px',
+  paddingBottom: '60px',
+  minHeight: 'calc(100vh - 200px)',
+};
+
+const profileImageStyle = {
+  width: '150px',
+  height: '150px',
+  borderRadius: '50%',
+  objectFit: 'cover',
+  border: '5px solid #6BB190',
+  margin: '0 auto 20px',
+};
+
+const headerStyle = {
+  backgroundColor: '#f8f9fa',
+  borderBottom: '1px solid #e0e0e0',
+  padding: '20px 0',
+  marginBottom: '30px',
+};
+
+const procesarDatosPersonales = (datos) => {
+  if (!datos) return null;
+  if (datos.iddatospersonales && datos.nombre_completo && datos.cedula) return datos;
+
+  const datosFormateados = { ...datos };
+
+  if (Array.isArray(datos.imagen)) {
+    try {
+      const byteArray = new Uint8Array(datos.imagen);
+      const binaryString = byteArray.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+      datosFormateados.imagen = btoa(binaryString);
+    } catch {
+      // imagen no convertible — dejar como está
+    }
+  }
+
+  return datosFormateados;
+};
+
 const PerfilUsuarioPage = () => {
-  const [userData, setUserData] = useState(null);
-  const [datosPersonales, setDatosPersonales] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { currentUser } = useAuth();
+  const [datosPersonales, setDatosPersonales]     = useState(null);
+  const [loading, setLoading]                     = useState(true);
+  const [error, setError]                         = useState(null);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-  const [actualizando, setActualizando] = useState(false);
+  const [actualizando, setActualizando]           = useState(false);
   const [showCompletarPerfil, setShowCompletarPerfil] = useState(false);
-  const navigate = useNavigate();
+
+  const userId = currentUser?.idUsuario || currentUser?.idusuarios || currentUser?.id;
+
+  const fetchUserData = useCallback(async () => {
+    if (!userId) {
+      setError('No se pudo determinar el ID del usuario.');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.get(`/datosPersonales/usuario/${userId}`);
+
+      if (response.data && Object.keys(response.data).length > 0) {
+        const datosProcesados = procesarDatosPersonales(response.data);
+        setDatosPersonales(datosProcesados);
+        setUsuarioSeleccionado(datosProcesados);
+        localStorage.setItem('datosPersonales', JSON.stringify(datosProcesados));
+        return;
+      }
+    } catch {
+      // no hay datos aún — crear placeholders para permitir edición
+    }
+
+    const datosPredeterminados = {
+      iddatospersonales: null,
+      nombre_completo: currentUser?.nombre || '',
+      cedula: '',
+      direccion: '',
+      telefono: '',
+      email: currentUser?.emailUser || currentUser?.email || '',
+      idusuarios: userId,
+    };
+
+    setDatosPersonales(datosPredeterminados);
+    setUsuarioSeleccionado(datosPredeterminados);
+    setError('No se encontraron datos personales completos. Por favor, actualiza tu información.');
+  }, [userId, currentUser]);
 
   useEffect(() => {
-    // Verificar si el usuario está autenticado
-    try {
-      // Obtener el usuario directamente del localStorage
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
-        navigate('/');
-        return;
-      }
-      
-      const user = JSON.parse(userStr);
-      setUserData(user);
-      
-      // Obtener el ID del usuario de varias propiedades posibles
-      const userId = user.idUsuario || user.idusuarios || user.id;
-      
-      if (!userId) {
-        console.error("No se pudo determinar el ID del usuario:", user);
-        setError("No se pudo determinar el ID del usuario");
-        setLoading(false);
-        return;
-      }
-      
-      console.log("ID de usuario encontrado para perfil:", userId);
-      
-      // Intentamos obtener datos personales del localStorage para mostrar rápidamente
-      const storedDatosPersonales = localStorage.getItem('datosPersonales');
-      if (storedDatosPersonales && storedDatosPersonales !== 'null') {
-        try {
-          const parsedData = JSON.parse(storedDatosPersonales);
-          setDatosPersonales(parsedData);
-          setUsuarioSeleccionado(parsedData);
-        } catch (error) {
-          console.error("Error al parsear datos personales:", error);
-        }
-      }
-      
-      // Siempre intentamos obtener datos actualizados del servidor
-      fetchUserData(userId);
-      
-      // Limpiar cualquier modal backdrop al cargar
-      const cleanupModals = () => {
-        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        document.body.removeAttribute('style');
-      };
-      
-      cleanupModals();
-    } catch (error) {
-      console.error("Error al inicializar perfil:", error);
-      setError("Error al cargar datos de usuario");
-      setLoading(false);
-    }
-  }, [navigate]);
-  
-  // Función para procesar los datos personales recibidos
-  const procesarDatosPersonales = (datos) => {
-    if (!datos) return null;
-    
-    // Si los datos ya están en el formato correcto, devolverlos tal cual
-    if (datos.iddatospersonales && datos.nombre_completo && datos.cedula) {
-      return datos;
-    }
-    
-    // Intentar extraer datos personales si vienen en otro formato
-    const datosFormateados = {};
-    
-    // Copiar propiedades existentes
-    Object.keys(datos).forEach(key => {
-      datosFormateados[key] = datos[key];
-    });
-    
-    // Si la imagen es un array de bytes, convertirla a Base64
-    if (datos.imagen && Array.isArray(datos.imagen)) {
+    // Mostrar datos del localStorage mientras carga del servidor
+    const storedDatos = localStorage.getItem('datosPersonales');
+    if (storedDatos && storedDatos !== 'null') {
       try {
-        const byteArray = new Uint8Array(datos.imagen);
-        const binaryString = byteArray.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-        datosFormateados.imagen = btoa(binaryString);
-      } catch (error) {
-        console.error("Error al convertir imagen:", error);
+        const parsed = JSON.parse(storedDatos);
+        setDatosPersonales(parsed);
+        setUsuarioSeleccionado(parsed);
+      } catch {
+        // datos corruptos — ignorar
       }
     }
-    
-    console.log("Datos procesados:", datosFormateados);
-    return datosFormateados;
-  };
 
-  const fetchUserData = async (userId) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      console.log("Intentando obtener datos para el usuario ID:", userId);
-      
-      // Múltiples intentos para obtener datos personales en orden:
-      // 1. Primero intenta obtenerlos del backend directamente
-      try {
-        const response = await axios.get(`http://localhost:8080/datosPersonales/usuario/${userId}`);
-        
-        if (response.data && Object.keys(response.data).length > 0) {
-          console.log("Datos personales obtenidos correctamente:", response.data);
-          const datosProcesados = procesarDatosPersonales(response.data);
-          setDatosPersonales(datosProcesados);
-          setUsuarioSeleccionado(datosProcesados);
-          localStorage.setItem('datosPersonales', JSON.stringify(datosProcesados));
-          setLoading(false);
-          return;
-        }
-      } catch (directError) {
-        console.error("Error al obtener datos del servidor:", directError);
-      }
-      
-      // 2. Si no hay datos, crea datos predeterminados para permitir la edición
-      const user = authService.getCurrentUser();
-      if (user) {
-        console.log("Creando datos predeterminados para permitir edición");
-        const datosPredeterminados = {
-          iddatospersonales: null,
-          nombre_completo: user.nombre || '',
-          cedula: '',
-          direccion: '',
-          telefono: '',
-          email: user.emailUser || user.email || '',
-          idusuarios: userId
-        };
-        
-        setDatosPersonales(datosPredeterminados);
-        setUsuarioSeleccionado(datosPredeterminados);
-        
-        // No guardar en localStorage datos predeterminados para forzar la carga desde el server la próxima vez
-        
-        // Mostrar alerta para que el usuario sepa que debe actualizar sus datos
-        setError("No se encontraron datos personales completos. Por favor, actualiza tu información.");
-      }
-    } catch (error) {
-      console.error("Error general al cargar datos personales:", error);
-      setError("Error al cargar los datos personales. Por favor, intenta nuevamente.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Función para verificar todos los posibles orígenes de datos
+    fetchUserData();
+  }, [fetchUserData]);
+
   const verificarTodasFuentes = async () => {
     setActualizando(true);
-    setError(null);
-    
-    try {
-      const user = authService.getCurrentUser();
-      if (!user) {
-        setError("No hay usuario autenticado");
-        setActualizando(false);
-        return;
-      }
-      
-      const userId = user.idUsuario || user.idusuarios;
-      if (!userId) {
-        setError("No se pudo determinar el ID del usuario");
-        setActualizando(false);
-        return;
-      }
-      
-      // Forzar la recarga de datos
-      await fetchUserData(userId);
-      
-      setActualizando(false);
-    } catch (error) {
-      console.error("Error al verificar fuentes:", error);
-      setError("Error al obtener datos. Por favor, intenta nuevamente.");
-      setActualizando(false);
-    }
+    await fetchUserData();
+    setActualizando(false);
   };
 
   const handleShowModal = () => {
-    // Determinar si necesitamos completar el perfil o actualizarlo
     const perfilIncompleto = !datosPersonales?.iddatospersonales;
-    
     if (perfilIncompleto) {
       setShowCompletarPerfil(true);
     } else {
-      // Inicializar el modal de actualización manualmente
       const modal = document.getElementById('actualizar-info-usuario');
-      if (modal && window.bootstrap && window.bootstrap.Modal) {
-        const modalInstance = new window.bootstrap.Modal(modal);
-        modalInstance.show();
+      if (modal && window.bootstrap?.Modal) {
+        new window.bootstrap.Modal(modal).show();
       }
     }
   };
 
-  // Estilo para las cards
-  const cardStyle = {
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    borderRadius: '12px',
-    marginBottom: '20px',
-    border: 'none'
-  };
-
-  // Estilo para el contenedor principal
-  const containerStyle = {
-    paddingTop: '40px',
-    paddingBottom: '60px',
-    minHeight: 'calc(100vh - 200px)'
-  };
-
-  // Estilo para la imagen de perfil
-  const profileImageStyle = {
-    width: '150px',
-    height: '150px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-    border: '5px solid #6BB190',
-    margin: '0 auto 20px'
-  };
-
-  // Estilo para la cabecera
-  const headerStyle = {
-    backgroundColor: '#f8f9fa',
-    borderBottom: '1px solid #e0e0e0',
-    padding: '20px 0',
-    marginBottom: '30px'
-  };
-
-  // Función para refrescar los datos del usuario
-  const refreshUserData = () => {
-    const user = authService.getCurrentUser();
-    if (user) {
-      const userId = user.idUsuario || user.idusuarios;
-      if (userId) {
-        fetchUserData(userId);
-      }
-    }
-  };
-
-  // Determinar si el perfil está incompleto
-  const perfilIncompleto = !datosPersonales?.iddatospersonales || 
-                           datosPersonales?.cedula === "Sin especificar" || 
-                           !datosPersonales?.cedula;
+  const perfilIncompleto =
+    !datosPersonales?.iddatospersonales ||
+    datosPersonales?.cedula === 'Sin especificar' ||
+    !datosPersonales?.cedula;
 
   return (
     <div className="PerfilUsuarioPage">
       <NavBarUsuario />
-      
+
       <div style={headerStyle}>
         <Container>
           <h1 className="text-center">Mi Perfil</h1>
           <p className="text-center text-muted">Visualiza y gestiona tu información personal</p>
         </Container>
       </div>
-      
+
       <Container style={containerStyle}>
         {loading ? (
           <div className="text-center">
@@ -282,19 +169,11 @@ const PerfilUsuarioPage = () => {
           <div className="alert alert-warning text-center" role="alert">
             {error}
             <div className="mt-3 d-flex justify-content-center gap-2">
-              <Button 
-                variant="primary" 
-                onClick={refreshUserData}
-                disabled={actualizando}
-              >
+              <Button variant="primary" onClick={fetchUserData} disabled={actualizando}>
                 Reintentar
               </Button>
-              <Button 
-                variant="outline-primary" 
-                onClick={verificarTodasFuentes}
-                disabled={actualizando}
-              >
-                {actualizando ? 'Verificando fuentes...' : 'Verificar todas las fuentes'}
+              <Button variant="outline-primary" onClick={verificarTodasFuentes} disabled={actualizando}>
+                {actualizando ? 'Verificando...' : 'Verificar todas las fuentes'}
               </Button>
             </div>
           </div>
@@ -303,97 +182,79 @@ const PerfilUsuarioPage = () => {
             <Col md={4}>
               <Card style={cardStyle}>
                 <Card.Body className="text-center">
-                  <img 
-                    src={datosPersonales?.imagen ? 
-                      (typeof datosPersonales.imagen === 'string' ? 
-                        `data:image/jpeg;base64,${datosPersonales.imagen}` : 
-                        URL.createObjectURL(new Blob([datosPersonales.imagen], {type: 'image/jpeg'}))
-                      ) : logoUsuario} 
-                    alt="Foto de perfil" 
+                  <img
+                    src={
+                      datosPersonales?.imagen
+                        ? (typeof datosPersonales.imagen === 'string'
+                            ? `data:image/jpeg;base64,${datosPersonales.imagen}`
+                            : URL.createObjectURL(new Blob([datosPersonales.imagen], { type: 'image/jpeg' })))
+                        : logoUsuario
+                    }
+                    alt="Foto de perfil"
                     style={profileImageStyle}
-                    onError={(e) => {
-                      e.target.src = logoUsuario;
-                      console.log("Error al cargar la imagen, usando predeterminada");
-                    }}
+                    onError={(e) => { e.target.src = logoUsuario; }}
                   />
-                  <Card.Title className="mb-3">{datosPersonales?.nombre_completo || userData?.username || 'Usuario'}</Card.Title>
+                  <Card.Title className="mb-3">
+                    {datosPersonales?.nombre_completo || currentUser?.username || 'Usuario'}
+                  </Card.Title>
                   <Card.Subtitle className="mb-3 text-muted">
-                    {userData?.rol === "ROLE_ADMIN" ? "Administrador" : "Usuario"}
+                    {currentUser?.rol === 'ROLE_ADMIN' ? 'Administrador' : 'Usuario'}
                   </Card.Subtitle>
-                  <div className="d-grid gap-2">
-                 
-                  </div>
+                  <Button variant="success" size="sm" onClick={handleShowModal}>
+                    Actualizar información
+                  </Button>
                 </Card.Body>
               </Card>
-              
+
               {perfilIncompleto && (
                 <div className="alert alert-info mt-3 text-center">
                   <i className="bi bi-info-circle me-2"></i>
-                  Tu perfil está incompleto. Por favor, completa tu información personal para acceder a todas las funcionalidades.
+                  Tu perfil está incompleto. Por favor, completa tu información personal.
                 </div>
               )}
             </Col>
-            
+
             <Col md={8}>
               <Card style={cardStyle}>
                 <Card.Header as="h5">Información Personal</Card.Header>
                 <Card.Body>
                   <Row className="mb-3">
-                    <Col sm={4}>
-                      <strong>Nombre completo:</strong>
-                    </Col>
-                    <Col sm={8}>
-                      {datosPersonales?.nombre_completo || 'No disponible'}
-                    </Col>
+                    <Col sm={4}><strong>Nombre completo:</strong></Col>
+                    <Col sm={8}>{datosPersonales?.nombre_completo || 'No disponible'}</Col>
                   </Row>
-                  
                   <Row className="mb-3">
-                    <Col sm={4}>
-                      <strong>Email:</strong>
-                    </Col>
-                    <Col sm={8}>
-                      {userData?.emailUser || 'No disponible'}
-                    </Col>
+                    <Col sm={4}><strong>Email:</strong></Col>
+                    <Col sm={8}>{currentUser?.emailUser || 'No disponible'}</Col>
                   </Row>
-                  
                   <Row className="mb-3">
-                    <Col sm={4}>
-                      <strong>Teléfono:</strong>
-                    </Col>
-                    <Col sm={8} className={datosPersonales?.telefono === "Sin especificar" ? "text-muted fst-italic" : ""}>
+                    <Col sm={4}><strong>Teléfono:</strong></Col>
+                    <Col sm={8} className={datosPersonales?.telefono === 'Sin especificar' ? 'text-muted fst-italic' : ''}>
                       {datosPersonales?.telefono || 'No disponible'}
                     </Col>
                   </Row>
-                  
                   <Row className="mb-3">
-                    <Col sm={4}>
-                      <strong>Cédula:</strong>
-                    </Col>
-                    <Col sm={8} className={datosPersonales?.cedula === "Sin especificar" ? "text-muted fst-italic" : ""}>
+                    <Col sm={4}><strong>Cédula:</strong></Col>
+                    <Col sm={8} className={datosPersonales?.cedula === 'Sin especificar' ? 'text-muted fst-italic' : ''}>
                       {datosPersonales?.cedula || 'No disponible'}
                     </Col>
                   </Row>
-                  
                   <Row className="mb-3">
-                    <Col sm={4}>
-                      <strong>Dirección:</strong>
-                    </Col>
-                    <Col sm={8} className={datosPersonales?.direccion === "Sin especificar" ? "text-muted fst-italic" : ""}>
+                    <Col sm={4}><strong>Dirección:</strong></Col>
+                    <Col sm={8} className={datosPersonales?.direccion === 'Sin especificar' ? 'text-muted fst-italic' : ''}>
                       {datosPersonales?.direccion || 'No disponible'}
                     </Col>
                   </Row>
-                  
                   <Row className="mb-3">
-                    <Col sm={4}>
-                      <strong>Fecha de registro:</strong>
-                    </Col>
+                    <Col sm={4}><strong>Fecha de registro:</strong></Col>
                     <Col sm={8}>
-                      {userData?.loginTime ? new Date(userData.loginTime).toLocaleDateString() : 'No disponible'}
+                      {currentUser?.fechaCreacion
+                        ? new Date(currentUser.fechaCreacion).toLocaleDateString('es-ES')
+                        : 'No disponible'}
                     </Col>
                   </Row>
                 </Card.Body>
               </Card>
-              
+
               <Card style={cardStyle}>
                 <Card.Header as="h5">Actividad</Card.Header>
                 <Card.Body>
@@ -402,7 +263,9 @@ const PerfilUsuarioPage = () => {
                     <li className="list-group-item d-flex justify-content-between align-items-center">
                       Último inicio de sesión
                       <span className="badge bg-primary rounded-pill">
-                        {userData?.loginTime ? new Date(userData.loginTime).toLocaleString() : 'No disponible'}
+                        {currentUser?.loginTime
+                          ? new Date(currentUser.loginTime).toLocaleString('es-ES')
+                          : 'No disponible'}
                       </span>
                     </li>
                   </ul>
@@ -412,23 +275,18 @@ const PerfilUsuarioPage = () => {
           </Row>
         )}
       </Container>
-      
-      <FooterPage />
-      
-      {/* Modal para actualizar información (para usuarios con perfil existente) */}
-      <ActualizarMiInformacion 
-        usuarioSeleccionado={usuarioSeleccionado} 
-        onUpdate={refreshUserData}
-      />
 
-      {/* Modal para completar perfil (para usuarios sin perfil) */}
+      <FooterPage />
+
+      <ActualizarMiInformacion usuarioSeleccionado={usuarioSeleccionado} onUpdate={fetchUserData} />
+
       <CompletarPerfil
         show={showCompletarPerfil}
         onHide={() => setShowCompletarPerfil(false)}
-        onUpdate={refreshUserData}
+        onUpdate={fetchUserData}
       />
     </div>
   );
 };
 
-export default PerfilUsuarioPage; 
+export default PerfilUsuarioPage;
