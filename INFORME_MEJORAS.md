@@ -5,6 +5,18 @@
 
 ---
 
+## Estado (actualizado 2026-08-20)
+
+La mayoría de los hallazgos de este informe **ya están corregidos** en `main`
+(commits `413a581`..`ee9406c`). El detalle por ítem está en la tabla de la
+[sección 6](#6-resumen-de-prioridades) — el texto de cada hallazgo se conserva tal
+cual porque documenta el problema original, no el estado actual del código.
+
+Probando la app en el navegador (no solo con Postman) apareció además un bug que
+no estaba en este informe: ver [sección 7](#7-bugs-encontrados-en-pruebas-manuales-navegador).
+
+---
+
 ## Tabla de contenidos
 
 1. [Arquitectura y organización](#1-arquitectura-y-organización)
@@ -13,6 +25,7 @@
 4. [Manejo de errores y UX](#4-manejo-de-errores-y-ux)
 5. [Buenas prácticas generales](#5-buenas-prácticas-generales)
 6. [Resumen de prioridades](#6-resumen-de-prioridades)
+7. [Bugs encontrados en pruebas manuales (navegador)](#7-bugs-encontrados-en-pruebas-manuales-navegador)
 
 ---
 
@@ -694,25 +707,47 @@ boxShadow: 1  // token de elevation de MUI
 
 ## 6. Resumen de prioridades
 
-| # | Problema | Impacto | Esfuerzo estimado |
-|---|----------|:-------:|:-----------------:|
-| 1 | `AuthProvider` duplicado | 🔴 Alto | Bajo |
-| 2 | `ProtectedRoute` sin Context | 🔴 Alto | Bajo |
-| 3 | `localStorage.getItem("token")` siempre null | 🔴 Alto | Bajo |
-| 4 | URLs hardcodeadas — falta `.env` y `api.js` | 🔴 Alto | Bajo |
-| 5 | `console.log` con token JWT en producción | 🔴 Alto | Bajo |
-| 6 | `alert()` en lugar de componentes UI | 🔴 Alto | Bajo |
-| 7 | `fetch` mezclado con `axios` | 🔴 Alto | Medio |
-| 8 | Interceptor Axios con `window.location.href` | 🔴 Alto | Medio |
-| 9 | Sin lazy loading de rutas | 🔴 Alto | Medio |
-| 10 | `cleanupModals` duplicada × 6 | 🟡 Medio | Bajo |
-| 11 | `value` del Context sin `useMemo` | 🟡 Medio | Bajo |
-| 12 | `calculateStats` sin `useMemo` | 🟡 Medio | Bajo |
-| 13 | `isLoggedIn` local vs Context | 🟡 Medio | Medio |
-| 14 | ID de usuario con 3 nombres distintos | 🟡 Medio | Medio |
-| 15 | Sin PropTypes ni TypeScript | 🟡 Medio | Alto |
-| 16 | Token JWT en `localStorage` (XSS) | 🔴 Alto | Alto *(requiere backend)* |
+| # | Problema | Impacto | Esfuerzo estimado | Estado |
+|---|----------|:-------:|:-----------------:|:------:|
+| 1 | `AuthProvider` duplicado | 🔴 Alto | Bajo | ✅ Resuelto (`9a7b3ae`) |
+| 2 | `ProtectedRoute` sin Context | 🔴 Alto | Bajo | ✅ Resuelto (`9a7b3ae`) |
+| 3 | `localStorage.getItem("token")` siempre null | 🔴 Alto | Bajo | ✅ Resuelto (`9e23135`) |
+| 4 | URLs hardcodeadas — falta `.env` y `api.js` | 🔴 Alto | Bajo | ✅ Resuelto (`c014d8d`) |
+| 5 | `console.log` con token JWT en producción | 🔴 Alto | Bajo | ✅ Resuelto (`bd43183`) |
+| 6 | `alert()` en lugar de componentes UI | 🔴 Alto | Bajo | ✅ Resuelto (`9e23135`) |
+| 7 | `fetch` mezclado con `axios` | 🔴 Alto | Medio | ✅ Resuelto (`9e23135`) |
+| 8 | Interceptor Axios con `window.location.href` | 🔴 Alto | Medio | ✅ Resuelto (`c014d8d`, `bd43183`) |
+| 9 | Sin lazy loading de rutas | 🔴 Alto | Medio | ✅ Resuelto (`9a7b3ae`) |
+| 10 | `cleanupModals` duplicada × 6 | 🟡 Medio | Bajo | ✅ Resuelto (`bd43183`) |
+| 11 | `value` del Context sin `useMemo` | 🟡 Medio | Bajo | ✅ Resuelto (`bd43183`) |
+| 12 | `calculateStats` sin `useMemo` | 🟡 Medio | Bajo | ✅ Resuelto (`9e23135`) |
+| 13 | `isLoggedIn` local vs Context | 🟡 Medio | Medio | ✅ Resuelto (`3dab79c`, `9e23135`) |
+| 14 | ID de usuario con 3 nombres distintos | 🟡 Medio | Medio | ⏳ Pendiente |
+| 15 | Sin PropTypes ni TypeScript | 🟡 Medio | Alto | ⏳ Pendiente |
+| 16 | Token JWT en `localStorage` (XSS) | 🔴 Alto | Alto *(requiere backend)* | ⏳ Pendiente |
+
+Pendientes reales: **14** (normalizar el id de usuario a un solo nombre en todo el
+código — `normalizeUserData` existe pero no se usa consistentemente), **15**
+(PropTypes/TypeScript) y **16** (mover el JWT a cookie `HttpOnly`, requiere cambio
+de backend). También se eliminó el archivo `App.jsx` duplicado (`413a581`), aparte
+de esta tabla.
 
 ---
 
-*Informe generado el 25 de abril de 2026 sobre el repositorio `RedCampoConectaFront` (React 19, CRA, MUI 6, Bootstrap 5).*
+## 7. Bugs encontrados en pruebas manuales (navegador)
+
+### 🟠 `/perfil` se queda cargando para siempre si el usuario no tiene `datosPersonales`
+
+**Archivo:** `pages/PerfilUsuarioPage.jsx` · **Corregido en:** `ee9406c`
+
+`fetchUserData` ponía `loading=true` al empezar la petición pero nunca lo volvía a
+`false`: el camino de éxito hacía `return` antes de llegar a esa línea, y el
+camino de "sin datos personales todavía" (por ejemplo un usuario recién creado,
+como el `admin` que genera `InitialDataLoader`, que no tiene fila en
+`datospersonales`) tampoco la tocaba. El spinner "Cargando información del
+perfil..." quedaba ahí indefinidamente. Se envolvió en `try/catch/finally` para
+que `setLoading(false)` corra siempre, sin importar el resultado.
+
+---
+
+*Informe generado el 25 de abril de 2026 sobre el repositorio `RedCampoConectaFront` (React 19, CRA, MUI 6, Bootstrap 5). Actualizado 2026-08-20 tras pruebas manuales en navegador.*
