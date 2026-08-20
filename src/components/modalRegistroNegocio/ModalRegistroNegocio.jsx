@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import api from '../../services/api';
 
 export default function ModalRegistroNegocio() {
   // Estados para los campos principales
@@ -32,20 +33,9 @@ export default function ModalRegistroNegocio() {
     formData.append("idusuarios", idusuarios);
 
     try {
-      const response = await fetch("http://localhost:8080/emprendimientos", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al registrar el negocio");
-      }
-      const data = await response.json();
-      console.log("Negocio registrado exitosamente!", data);
-      // Aquí podrías limpiar el formulario o cerrar el modal
-    } catch (error) {
-      console.error(error);
-      console.log("Error en el registro del negocio");
+      await api.post('/emprendimientos', formData);
+    } catch {
+      // error al registrar negocio
     }
   };
 

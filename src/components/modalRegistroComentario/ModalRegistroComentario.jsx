@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import api from '../../services/api';
 
 
 export default function ModalRegistroComentario() {
@@ -21,23 +22,9 @@ export default function ModalRegistroComentario() {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/comentariosYCalificaciones", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(comentarioData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al registrar el comentario");
-      }
-      const data = await response.json();
-      console.log("Comentario registrado exitosamente!", data);
-      // Aquí podrías limpiar el formulario o cerrar el modal
-    } catch (error) {
-      console.error(error);
-      console.log("Error en el registro del comentario");
+      await api.post('/comentariosYCalificaciones', comentarioData);
+    } catch {
+      // error al registrar comentario
     }
   };
 

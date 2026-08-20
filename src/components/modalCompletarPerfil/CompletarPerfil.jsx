@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import authService from '../../services/authService';
+import api from '../../services/api';
 
 export default function CompletarPerfil({ show, onHide, onUpdate }) {
   const [formData, setFormData] = useState({
@@ -15,7 +16,6 @@ export default function CompletarPerfil({ show, onHide, onUpdate }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [debugInfo, setDebugInfo] = useState(null);
   
   // Obtener y almacenar el ID de usuario cuando el componente se monta
   const [userId, setUserId] = useState(null);
@@ -25,47 +25,23 @@ export default function CompletarPerfil({ show, onHide, onUpdate }) {
       // Resetear estados cuando se abre el modal
       setError(null);
       setSuccess(false);
-      setDebugInfo(null);
-      
-      // Obtener datos del usuario actual directamente de localStorage
+
       try {
         const userStr = localStorage.getItem('user');
         if (userStr) {
           const user = JSON.parse(userStr);
-          console.log("Usuario completo desde localStorage:", user);
-          
-          // Intentar obtener el ID del usuario de diferentes propiedades posibles
-          const userId = user.idUsuario || user.idusuarios || user.id;
-          
-          if (userId) {
-            console.log("ID de usuario encontrado:", userId);
-            setUserId(userId);
-            
-            // Establecer el nombre si está disponible
-            setFormData(prev => ({
-              ...prev, 
-              nombreCompleto: user.nombre || "",
-            }));
-            
-            // Información de depuración
-            setDebugInfo({
-              mensaje: "Información de usuario",
-              datos: JSON.stringify({
-                ...user,
-                userId: userId
-              }, null, 2)
-            });
+          const uid = user.idUsuario || user.idusuarios || user.id;
+          if (uid) {
+            setUserId(uid);
+            setFormData((prev) => ({ ...prev, nombreCompleto: user.nombre || '' }));
           } else {
-            console.error("No se pudo obtener un ID de usuario válido del localStorage");
-            setError("No se pudo determinar el ID de usuario. Por favor, recargue la página.");
+            setError('No se pudo determinar el ID de usuario. Por favor, recargue la página.');
           }
         } else {
-          console.error("No hay datos de usuario en localStorage");
-          setError("No se encontraron datos de usuario. Por favor, inicie sesión nuevamente.");
+          setError('No se encontraron datos de usuario. Por favor, inicie sesión nuevamente.');
         }
-      } catch (e) {
-        console.error("Error al parsear datos de usuario:", e);
-        setError("Error al procesar los datos de usuario. Por favor, inicie sesión nuevamente.");
+      } catch {
+        setError('Error al procesar los datos de usuario. Por favor, inicie sesión nuevamente.');
       }
     }
   }, [show]);
@@ -94,78 +70,23 @@ export default function CompletarPerfil({ show, onHide, onUpdate }) {
     setSuccess(false);
     
     try {
-      // Verificar que tenemos un ID de usuario válido
       if (!userId) {
-        // Intentar obtener el ID de usuario una vez más
-        try {
-          const userStr = localStorage.getItem('user');
-          if (userStr) {
-            const user = JSON.parse(userStr);
-            const newUserId = user.idUsuario || user.idusuarios || user.id;
-            if (newUserId) {
-              setUserId(newUserId);
-              console.log("ID de usuario recuperado en el último intento:", newUserId);
-            } else {
-              throw new Error("No se pudo recuperar el ID de usuario");
-            }
-          } else {
-            throw new Error("No hay datos de usuario disponibles");
-          }
-        } catch (e) {
-          console.error("Error al recuperar ID de usuario:", e);
-          throw new Error("ID de usuario no válido. Por favor, inicia sesión nuevamente.");
-        }
+        throw new Error('ID de usuario no válido. Por favor, inicia sesión nuevamente.');
       }
       
-      console.log("Completando perfil para usuario con ID:", userId);
-      
-      // Crear FormData para enviar los datos
       const formDataToSend = new FormData();
-      formDataToSend.append("nombre_completo", formData.nombreCompleto);
-      formDataToSend.append("cedula", formData.cedula);
-      formDataToSend.append("direccion", formData.direccion);
-      formDataToSend.append("telefono", formData.telefono);
-      formDataToSend.append("idtipodocumento", formData.tipoDocumento);
-      formDataToSend.append("idusuarios", userId.toString());
-      
+      formDataToSend.append('nombre_completo', formData.nombreCompleto);
+      formDataToSend.append('cedula', formData.cedula);
+      formDataToSend.append('direccion', formData.direccion);
+      formDataToSend.append('telefono', formData.telefono);
+      formDataToSend.append('idtipodocumento', formData.tipoDocumento);
+      formDataToSend.append('idusuarios', userId.toString());
+
       if (formData.imagen) {
-        formDataToSend.append("imagen", formData.imagen);
+        formDataToSend.append('imagen', formData.imagen);
       }
-      
-      console.log("Enviando datos:", {
-        nombre_completo: formData.nombreCompleto,
-        cedula: formData.cedula,
-        direccion: formData.direccion,
-        telefono: formData.telefono,
-        idtipodocumento: formData.tipoDocumento,
-        idusuarios: userId.toString(),
-        imagen: formData.imagen ? "Imagen presente" : "Sin imagen"
-      });
-      
-      // Usar console.log para ver los datos que se envían
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-      
-      const response = await fetch("http://localhost:8080/datosPersonales", {
-        method: "POST",
-        body: formDataToSend,
-        headers: {
-          // No incluir Content-Type aquí porque FormData lo establece automáticamente con el boundary
-          'Authorization': `Bearer ${authService.getToken() || ''}`
-        }
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error del servidor:", response.status, errorText);
-        throw new Error(`Error al guardar los datos: ${response.status} ${errorText}`);
-      }
-      
-      const result = await response.json();
-      console.log("Perfil completado exitosamente:", result);
-      
-      // Actualizar localStorage con los nuevos datos
+
+      const { data: result } = await api.post('/datosPersonales', formDataToSend);
       localStorage.setItem('datosPersonales', JSON.stringify(result));
       
       setSuccess(true);
@@ -182,8 +103,7 @@ export default function CompletarPerfil({ show, onHide, onUpdate }) {
       }, 2000);
       
     } catch (error) {
-      console.error("Error al completar perfil:", error);
-      setError(error.message || "Ocurrió un error al guardar los datos");
+      setError(error.response?.data?.message || error.message || 'Ocurrió un error al guardar los datos.');
     } finally {
       setLoading(false);
     }
@@ -211,18 +131,6 @@ export default function CompletarPerfil({ show, onHide, onUpdate }) {
           <Alert variant="success">
             ¡Perfil completado exitosamente!
           </Alert>
-        )}
-        
-        {debugInfo && (
-          <div className="mb-3">
-            <details>
-              <summary className="text-info cursor-pointer">Información de depuración</summary>
-              <pre className="bg-light p-2 mt-2" style={{fontSize: '0.8rem'}}>
-                {debugInfo.mensaje}
-                {debugInfo.datos}
-              </pre>
-            </details>
-          </div>
         )}
         
         <Form onSubmit={handleSubmit}>

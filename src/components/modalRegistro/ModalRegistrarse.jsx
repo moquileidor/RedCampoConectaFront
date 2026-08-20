@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaEnvelope, FaLock, FaIdCard, FaHome, FaPhone, FaFileImage } from "react-icons/fa";
 import authService from '../../services/authService';
-import axios from 'axios';
+import api from '../../services/api';
+import { cleanupBootstrapModals } from '../../utils/modalCleanup';
 import './ModalRegistrarse.css';
 
 export default function RegistrarmeModal() {
@@ -48,60 +49,38 @@ export default function RegistrarmeModal() {
 
       // Obtener el ID del usuario recién registrado
       const userId = userData.idUsuario || userData.idusuarios;
-      console.log("Usuario registrado con ID:", userId);
-
       // Paso 2: Crear datos personales si se proporcionaron campos opcionales
       if (userId && (nombreCompleto || cedula || direccion || telefono || tipoDocumento || imagen)) {
-        console.log("Intentando guardar datos personales para el usuario ID:", userId);
-        
         const formData = new FormData();
-        formData.append("nombre_completo", nombreCompleto || "");
-        formData.append("cedula", cedula || "");
-        formData.append("direccion", direccion || "");
-        formData.append("telefono", telefono || "");
-        formData.append("idusuarios", userId);
-        formData.append("idtipodocumento", tipoDocumento || "4"); // Valor por defecto: Cédula de Ciudadanía
-        
+        formData.append('nombre_completo', nombreCompleto || '');
+        formData.append('cedula', cedula || '');
+        formData.append('direccion', direccion || '');
+        formData.append('telefono', telefono || '');
+        formData.append('idusuarios', userId);
+        formData.append('idtipodocumento', tipoDocumento || '4');
+
         if (imagen) {
-          formData.append("imagen", imagen);
+          formData.append('imagen', imagen);
         }
 
         try {
-          const token = authService.getToken();
-          const datosResponse = await axios.post("http://localhost:8080/datosPersonales", formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              'Authorization': `Bearer ${token}`
-            }
+          const datosResponse = await api.post('/datosPersonales', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
           });
-          
-          console.log("Datos personales guardados correctamente:", datosResponse.data);
           localStorage.setItem('datosPersonales', JSON.stringify(datosResponse.data));
-        } catch (datosError) {
-          console.error("Error al guardar datos personales:", datosError);
-          // Continuamos con el proceso aunque falle el guardado de datos personales
+        } catch {
+          // Continuar aunque falle el guardado de datos personales
         }
       }
 
-      // Cerrar el modal y limpiar correctamente
+      cleanupBootstrapModals();
       const modal = document.getElementById('registrarme');
       if (modal) {
-        const backdrop = document.querySelector('.modal-backdrop');
-        if (backdrop) {
-          backdrop.remove();
-        }
-        
         modal.classList.remove('show');
         modal.style.display = 'none';
-        document.body.classList.remove('modal-open');
-        document.body.style.paddingRight = '';
-        document.body.style.overflow = '';
       }
 
-      console.log("Usuario registrado:", userData);
-
-      navigate("/usuario");
-      alert("¡Registro exitoso! Bienvenido a la plataforma.");
+      navigate('/usuario');
     } catch (error) {
       console.error("Error en el registro:", error);
       setError(error.response?.data?.message || "Error al registrar usuario. Inténtalo de nuevo.");
@@ -110,20 +89,12 @@ export default function RegistrarmeModal() {
     }
   };
 
-  // Función para cerrar el modal correctamente
   const closeModal = () => {
+    cleanupBootstrapModals();
     const modal = document.getElementById('registrarme');
     if (modal) {
-      const backdrop = document.querySelector('.modal-backdrop');
-      if (backdrop) {
-        backdrop.remove();
-      }
-      
       modal.classList.remove('show');
       modal.style.display = 'none';
-      document.body.classList.remove('modal-open');
-      document.body.style.paddingRight = '';
-      document.body.style.overflow = '';
     }
   };
 

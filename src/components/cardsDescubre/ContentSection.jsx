@@ -98,7 +98,7 @@ function ContentSection() {
 
             {/* Botones para navegar */}
             <Box sx={{ textAlign: "center", mt: 4, display: "flex", justifyContent: "center", gap: 2 }}>
-                <Link to="/Marketplace" style={{ textDecoration: "none" }}>
+                <Link to="/marketplace" style={{ textDecoration: "none" }}>
                     <Button variant="contained" color="primary" size="large">
                         Explorar Mercado
                     </Button>

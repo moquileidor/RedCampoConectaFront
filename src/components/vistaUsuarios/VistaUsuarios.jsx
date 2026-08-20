@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import './VistaUsuarios.css';
 import ModalEliminar from '../modalEliminar/ModalEliminar';
 import ModalActualizarUsuario from '../modalActualizarUsuario/ModalActualizarUsuario';
+import api from '../../services/api';
 
 export default function VistaUsuarios() {
   // Estado para la lista de datos personales
@@ -11,68 +12,41 @@ export default function VistaUsuarios() {
   const [id, setId] = useState(null); // Para el modal
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null); // Para el modal de actualización
 
-  // Función para abrir el modal
   const abrirModal = (tipoEntidad, nombreEntidad, idEntidad) => {
     setTipo(tipoEntidad);
     setNombre(nombreEntidad);
     setId(idEntidad);
-    
-    // Buscamos el usuario completo, no solo por el ID de datos personales
-    const datosPersonalesUsuario = datosPersonales.find(dato => dato.iddatospersonales === idEntidad);
-    
+
+    const datosPersonalesUsuario = datosPersonales.find((dato) => dato.iddatospersonales === idEntidad);
     if (datosPersonalesUsuario) {
-      // Asegurarnos de que todos los datos necesarios estén presentes
-      console.log("Datos personales encontrados:", datosPersonalesUsuario);
-      
-      // Si falta idusuarios, obtenemos ese dato desde la API
-      if (!datosPersonalesUsuario.idusuarios) {
-        console.error("El usuario seleccionado no tiene ID de usuario asociado");
-      }
-      
-      // Crear una copia completa del objeto para evitar referencias circulares
-      const usuarioCompleto = {
+      setUsuarioSeleccionado({
         ...datosPersonalesUsuario,
-        idUsuario: datosPersonalesUsuario.idusuarios, // Aseguramos que este campo exista
-        iddatospersonales: idEntidad
-      };
-      
-      console.log("Usuario completo para el modal:", usuarioCompleto);
-      setUsuarioSeleccionado(usuarioCompleto);
+        idUsuario: datosPersonalesUsuario.idusuarios,
+        iddatospersonales: idEntidad,
+      });
     } else {
-      console.error("No se encontraron datos personales para el ID:", idEntidad);
       setUsuarioSeleccionado(null);
     }
   };
 
 
   
-  // Función para obtener datos desde el endpoint de datos personales
   const obtenerDatosPersonales = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/datosPersonales`);
-      const data = await response.json();
+      const { data } = await api.get('/datosPersonales');
       setDatosPersonales(data);
-    } catch (error) {
-      console.error("Error al obtener los datos personales:", error);
+    } catch {
+      // error al obtener datos personales
     }
   };
- // Función para eliminar un usuario
-const eliminarUsuario = async () => {
+
+  const eliminarUsuario = async () => {
     if (!id) return;
-  
     try {
-      const response = await fetch(`http://localhost:8080/datosPersonales/${id}`, {
-        method: "DELETE",
-      });
-  
-      if (response.ok) {
-        console.log(`Usuario con ID ${id} eliminado correctamente.`);
-        setDatosPersonales(datosPersonales.filter(dato => dato.iddatospersonales !== id));
-      } else {
-        console.error("Error al eliminar el usuario");
-      }
-    } catch (error) {
-      console.error("Error en la petición de eliminación:", error);
+      await api.delete(`/datosPersonales/${id}`);
+      setDatosPersonales((prev) => prev.filter((dato) => dato.iddatospersonales !== id));
+    } catch {
+      // error al eliminar
     }
   };
   

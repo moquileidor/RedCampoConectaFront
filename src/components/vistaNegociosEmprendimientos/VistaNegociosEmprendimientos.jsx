@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./VistaNegociosEmprendimientos.css";
 import ModalActualizarNegocio from "../modalActualizarNegocio/ModalActualizarNegocio";
 import ModalEliminarNegocio from "../modalEliminarNegocio/ModalEliminarNegocio";
-import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min";
+import api from '../../services/api';
 
 export default function VistaNegociosEmprendimientos() {
   const [emprendimientos, setEmprendimientos] = useState([]);
@@ -11,12 +11,10 @@ export default function VistaNegociosEmprendimientos() {
   const [id, setId] = useState(null);
   const [negocioSeleccionado, setNegocioSeleccionado] = useState(null);
 
-  // Abre el modal configurando los datos correspondientes
   const abrirModalEliminar = (tipoEntidad, nombreEntidad, idEntidad) => {
     setTipo(tipoEntidad);
     setNombre(nombreEntidad);
     setId(idEntidad);
-    console.log("ID seleccionado para eliminar:", idEntidad);
   };
 
   // Nueva función para abrir modal de actualizar
@@ -39,12 +37,10 @@ export default function VistaNegociosEmprendimientos() {
     };
     
     setNegocioSeleccionado(negocioAdaptado);
-    // Usa setTimeout para asegurar que el DOM está actualizado
     setTimeout(() => {
-      const modalElement = document.getElementById("actualizar-negocio");
-      if (modalElement) {
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
+      const modalElement = document.getElementById('actualizar-negocio');
+      if (modalElement && window.bootstrap?.Modal) {
+        new window.bootstrap.Modal(modalElement).show();
       }
     }, 100);
   };
@@ -52,53 +48,25 @@ export default function VistaNegociosEmprendimientos() {
   // Obtener datos del backend
   const obtenerEmprendimientos = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/emprendimientos`);
-      const data = await response.json();
-      console.log("Respuesta API:", data);
+      const { data } = await api.get('/emprendimientos');
       setEmprendimientos(data.content || data || []);
-    } catch (error) {
-      console.error("Error al obtener los emprendimientos:", error);
+    } catch {
+      // error al obtener emprendimientos
     }
   };
 
-  // Función para eliminar un negocio
   const eliminarNegocio = async (idNegocio) => {
-    if (!idNegocio) {
-      console.error("Error: No se ha seleccionado un negocio para eliminar.");
-      return;
-    }
+    if (!idNegocio) return;
     try {
-      console.log(`Intentando eliminar negocio con ID: ${idNegocio}`);
-      const response = await fetch(`http://localhost:8080/emprendimientos/${idNegocio}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        console.log(`Negocio con ID ${idNegocio} eliminado correctamente.`);
-        setEmprendimientos(emprendimientos.filter((dato) => dato.idemprendimiento !== idNegocio));
-      } else {
-        console.error("Error al eliminar el negocio. Verifica el backend.");
-      }
-    } catch (error) {
-      console.error("Error en la petición de eliminación:", error);
+      await api.delete(`/emprendimientos/${idNegocio}`);
+      setEmprendimientos((prev) => prev.filter((dato) => dato.idemprendimiento !== idNegocio));
+    } catch {
+      // error al eliminar
     }
   };
 
   useEffect(() => {
     obtenerEmprendimientos();
-    
-    // Asegurarnos de que bootstrap esté cargado correctamente
-    // Este paso es crucial para resolver el error con .backdrop
-    const initBootstrap = () => {
-      // Ya importamos bootstrap en la parte superior, solo necesitamos asegurarnos
-      // de que esté disponible
-      if (typeof bootstrap !== 'undefined') {
-        console.log("Bootstrap cargado correctamente");
-      } else {
-        console.error("Bootstrap no está disponible");
-      }
-    };
-    
-    initBootstrap();
   }, []);
 
   return (

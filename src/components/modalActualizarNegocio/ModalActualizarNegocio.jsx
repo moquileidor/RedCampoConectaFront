@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min";
+import api from '../../services/api';
 
 export default function ModalActualizarNegocio({ negocioSeleccionado, onActualizarExito }) {
   const [negocioData, setNegocioData] = useState({
@@ -79,31 +79,17 @@ export default function ModalActualizarNegocio({ negocioSeleccionado, onActualiz
         formData.append("imagen", negocioData.imagen);
       }
       
-      // Para depuración - mostrar lo que estamos enviando
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-      
-      const response = await fetch(`http://localhost:8080/emprendimientos/${negocioData.id}/actualizar`, {
-        method: "POST",
-        body: formData,
-      });
-  
-      if (response.ok) {
-        alert("Negocio actualizado correctamente");
-        if (onActualizarExito) onActualizarExito();
-  
-        const modalElement = document.getElementById("actualizar-negocio");
-        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      await api.post(`/emprendimientos/${negocioData.id}/actualizar`, formData);
+
+      if (onActualizarExito) onActualizarExito();
+
+      const modalElement = document.getElementById('actualizar-negocio');
+      if (modalElement && window.bootstrap?.Modal) {
+        const modalInstance = window.bootstrap.Modal.getInstance(modalElement);
         if (modalInstance) modalInstance.hide();
-      } else {
-        const errorText = await response.text();
-        console.error("Respuesta del backend:", errorText);
-        alert("Error al actualizar el negocio");
       }
-    } catch (error) {
-      console.error("Error al actualizar el negocio:", error);
-      alert("Hubo un problema con la actualización");
+    } catch {
+      // error al actualizar negocio
     }
   };
   

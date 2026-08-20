@@ -2,16 +2,14 @@ import React, { useEffect } from "react";
 import logo from "../../assets/logo.png";
 import IniciarSesionModal from "../modalIniciarSesion/ModalIniciarSesion";
 import RegistrarmeModal from "../modalRegistro/ModalRegistrarse";
+import { cleanupBootstrapModals } from "../../utils/modalCleanup";
 import "./Navbar.css";
 
 export default function Navbar() {
-    // Función para limpiar modales
+    // Función para limpiar modales usando la utilidad común
     const cleanupModals = () => {
-        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
+        cleanupBootstrapModals();
         document.body.style.paddingRight = '';
-        document.body.removeAttribute('style');
     };
     
     // Asegurar que bootstrap está cargado correctamente

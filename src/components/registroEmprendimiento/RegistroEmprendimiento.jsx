@@ -17,6 +17,7 @@ import {
   Switch 
 } from "@mui/material";
 import authService from "../../services/authService";
+import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import NavBarUsuario from "../navBarUsuario/NavBarUsuario";
 import Footer from "../footer/Footer";
@@ -44,24 +45,14 @@ function RegistroEmprendimiento() {
   useEffect(() => {
     const user = authService.getCurrentUser();
     if (!user) {
-      navigate("/");
+      navigate('/');
       return;
     }
-    
-    // Obtener ID de usuario de manera consistente
+
     const userId = authService.getUserId();
-    console.log("Usuario autenticado:", user);
-    console.log("ID de usuario:", userId);
-    
-    // Asegurarnos de tener el ID de usuario
     if (!userId) {
-      console.error("No se encontró el ID de usuario en la sesión");
-      setError("No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.");
-      // Redireccionar después de 3 segundos
-      setTimeout(() => {
-        authService.logout();
-        navigate("/");
-      }, 3000);
+      setError('No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.');
+      setTimeout(() => { authService.logout(); navigate('/'); }, 3000);
       return;
     }
     
@@ -71,18 +62,12 @@ function RegistroEmprendimiento() {
     fetchRegiones();
   }, [navigate]);
   
-  // Función para cargar las regiones
   const fetchRegiones = async () => {
     try {
-      const response = await fetch("http://localhost:8080/regiones");
-      if (!response.ok) {
-        throw new Error("Error al obtener regiones");
-      }
-      const data = await response.json();
+      const { data } = await api.get('/regiones');
       setRegiones(data);
-    } catch (error) {
-      console.error("Error cargando regiones:", error);
-      setError("No se pudieron cargar las regiones. Por favor intente más tarde.");
+    } catch {
+      setError('No se pudieron cargar las regiones. Por favor intente más tarde.');
     }
   };
   
@@ -122,77 +107,22 @@ function RegistroEmprendimiento() {
     }
     
     try {
-      console.log("Iniciando registro de emprendimiento con ID de usuario:", userId);
-      
-      // Crear formData para enviar
       const requestFormData = new FormData();
-      requestFormData.append("nombre", formData.nombre);
-      requestFormData.append("descripcion", formData.descripcion);
-      requestFormData.append("tipo", formData.tipo);
-      requestFormData.append("fecha_creacion", formData.fecha_creacion);
-      requestFormData.append("estado_emprendimiento", formData.estado_emprendimiento);
-      requestFormData.append("idregiones", formData.idregiones);
-      requestFormData.append("idusuarios", userId);
-      
-      // Verificar que todos los campos requeridos estén presentes
-      console.log("FormData creado:", {
-        nombre: formData.nombre,
-        descripcion: formData.descripcion,
-        tipo: formData.tipo,
-        fecha_creacion: formData.fecha_creacion,
-        estado_emprendimiento: formData.estado_emprendimiento,
-        idregiones: formData.idregiones,
-        idusuarios: userId
-      });
-      
+      requestFormData.append('nombre', formData.nombre);
+      requestFormData.append('descripcion', formData.descripcion);
+      requestFormData.append('tipo', formData.tipo);
+      requestFormData.append('fecha_creacion', formData.fecha_creacion);
+      requestFormData.append('estado_emprendimiento', formData.estado_emprendimiento);
+      requestFormData.append('idregiones', formData.idregiones);
+      requestFormData.append('idusuarios', userId);
+
       if (imagen) {
-        requestFormData.append("imagen", imagen);
-        console.log("Imagen añadida al FormData:", imagen.name);
+        requestFormData.append('imagen', imagen);
       }
       
-      // Obtener token de autenticación usando el servicio
-      const token = authService.getToken();
-      
-      if (!token) {
-        setError("Token de autenticación no disponible. Por favor inicie sesión nuevamente.");
-        setLoading(false);
-        return;
-      }
-      
-      console.log("Token obtenido:", token);
-      
-      // Enviar petición al backend
-      console.log("Enviando petición al backend...");
-      const response = await fetch("http://localhost:8080/emprendimientos", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: requestFormData,
+      await api.post('/emprendimientos', requestFormData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-      
-      // Comprobar si la respuesta es exitosa
-      console.log("Respuesta recibida. Status:", response.status);
-      
-      if (!response.ok) {
-        let errorMessage = `Error ${response.status}: ${response.statusText}`;
-        
-        try {
-          const errorData = await response.json();
-          console.error("Datos de error:", errorData);
-          
-          if (errorData && errorData.error) {
-            errorMessage = errorData.error;
-          }
-        } catch (parseError) {
-          console.error("Error al procesar la respuesta de error:", parseError);
-        }
-        
-        throw new Error(errorMessage);
-      }
-      
-      const data = await response.json();
-      console.log("Emprendimiento registrado exitosamente:", data);
       
       // Mostrar mensaje de éxito
       setSuccess(true);
@@ -214,26 +144,11 @@ function RegistroEmprendimiento() {
       }, 2000);
       
     } catch (error) {
-      console.error("Error registrando emprendimiento:", error);
-      
-      // Mensaje de error más detallado
-      let errorMessage = "Error al registrar el emprendimiento.";
-      
-      if (error.message) {
-        errorMessage = error.message;
-        
-        if (error.message.includes("JWT") || error.message.includes("token") || error.message.includes("autenticación")) {
-          errorMessage += " Por favor, intente iniciar sesión nuevamente.";
-          // Cerrar sesión automáticamente si hay un problema con el token
-          setTimeout(() => {
-            authService.logout();
-            navigate("/");
-          }, 3000);
-        }
-      } else {
-        errorMessage += " Por favor intente nuevamente.";
+      let errorMessage = error.response?.data?.message || error.message || 'Error al registrar el emprendimiento.';
+      if (errorMessage.includes('JWT') || errorMessage.includes('token')) {
+        errorMessage += ' Por favor, intente iniciar sesión nuevamente.';
+        setTimeout(() => { authService.logout(); navigate('/'); }, 3000);
       }
-      
       setError(errorMessage);
     } finally {
       setLoading(false);

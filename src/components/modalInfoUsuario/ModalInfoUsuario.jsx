@@ -7,6 +7,7 @@ import ActualizarMiInformacion from '../modalActualizarUsuario/ModalActualizarUs
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
+import { cleanupBootstrapModals } from '../../utils/modalCleanup';
 
 export default function ModalInfoUsuario() {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null); // Para el modal de actualización
@@ -54,16 +55,9 @@ export default function ModalInfoUsuario() {
       }
     }
     
-    // Eliminar backdrop y restaurar scroll
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) {
-      backdrop.remove();
-    }
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
+    // Eliminar backdrop y restaurar scroll usando la utilidad
+    cleanupBootstrapModals();
     document.body.style.paddingRight = '';
-    document.body.removeAttribute('style');
-    document.documentElement.style.overflow = '';
     document.documentElement.style.paddingRight = '';
   };
 
@@ -74,18 +68,9 @@ export default function ModalInfoUsuario() {
     // Utilizar el servicio de autenticación para el logout
     authService.logout();
     
-    // Eliminar cualquier backdrop adicional
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) {
-      backdrop.remove();
-    }
-    
-    // Restablecer scroll y limpiar estilos
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
+    // Eliminar cualquier backdrop adicional usando la utilidad
+    cleanupBootstrapModals();
     document.body.style.paddingRight = '';
-    document.body.removeAttribute('style');
-    document.documentElement.style.overflow = '';
     document.documentElement.style.paddingRight = '';
     
     // Navegar a la página principal

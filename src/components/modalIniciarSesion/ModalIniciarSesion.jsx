@@ -4,6 +4,7 @@ import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min";
 import ModalRegistrarUsuario from '../modalRegistro/ModalRegistrarse';
 import authService from '../../services/authService';
 import { FaEnvelope, FaLock } from "react-icons/fa";
+import { cleanupBootstrapModals } from "../../utils/modalCleanup";
 import './ModalIniciarSesion.css';
 
 export default function IniciarSesionModal() {
@@ -41,19 +42,8 @@ export default function IniciarSesionModal() {
 
   // Función para forzar la limpieza completa de modales y restaurar el scroll
   const forceCleanupModals = () => {
-    // Remover todos los backdrops
-    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-    
-    // Restaurar el body a su estado normal
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
+    cleanupBootstrapModals();
     document.body.style.paddingRight = '';
-    
-    // Asegurarse de que no hay ningún estilo inline que bloquee el scroll
-    document.body.removeAttribute('style');
-    
-    // Forzar el desbloqueo del scroll
-    document.documentElement.style.overflow = '';
     document.documentElement.style.paddingRight = '';
   };
 

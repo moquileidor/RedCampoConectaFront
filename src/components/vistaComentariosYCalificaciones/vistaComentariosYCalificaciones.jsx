@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./VistaComentariosYCalificaciones.css";
+import api from '../../services/api';
 
 export default function VistaComentariosYCalificaciones({ idEmprendimiento, idUsuario }) {
   const [comentarios, setComentarios] = useState([]);
@@ -9,16 +10,13 @@ export default function VistaComentariosYCalificaciones({ idEmprendimiento, idUs
   // Obtener los comentarios del backend
   const obtenerComentarios = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/comentariosYCalificaciones`);
-      const data = await response.json();
-      console.log("Comentarios recibidos:", data);
+      const { data } = await api.get('/comentariosYCalificaciones');
       setComentarios(data || []);
-    } catch (error) {
-      console.error("Error al obtener los comentarios:", error);
+    } catch {
+      // sin comentarios disponibles
     }
   };
 
-  // Agregar un nuevo comentario
   const agregarComentario = async (e) => {
     e.preventDefault();
 
@@ -31,21 +29,12 @@ export default function VistaComentariosYCalificaciones({ idEmprendimiento, idUs
     };
 
     try {
-      const response = await fetch(`http://localhost:8080/comentariosYCalificaciones`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevoComentario),
-      });
-
-      if (response.ok) {
-        setComentario("");
-        setCalificacion(1);
-        obtenerComentarios(); // Recargar la lista
-      } else {
-        console.error("Error al agregar comentario");
-      }
-    } catch (error) {
-      console.error("Error en la petición:", error);
+      await api.post('/comentariosYCalificaciones', nuevoComentario);
+      setComentario('');
+      setCalificacion(1);
+      obtenerComentarios();
+    } catch {
+      // error al agregar comentario
     }
   };
 
